@@ -1,0 +1,31 @@
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <https://example.com/> .
+
+# Owner's WebID
+<#owner>
+    a acl:Authorization;
+    acl:agent <https://example.org/profile/card#me>;  # Resource owner WebID
+    acl:accessTo <https://example.com/resource/>;  # Resource URI
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+# Public read access
+<#public>
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;  # All agents (public access)
+    acl:accessTo <https://example.com/resource/>;
+    acl:mode acl:Read.
+
+# Authenticated user read access
+<#authenticated>
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;  # All authenticated users
+    acl:accessTo <https://example.com/resource/>;
+    acl:mode acl:Read.
+
+# Specific user access
+<#specificUser>
+    a acl:Authorization;
+    acl:agent <https://another-example.org/profile/card#anotherAgent>;  # Specific user WebID
+    acl:accessTo <https://example.com/resource/>;
+    acl:mode acl:Read, acl:Append, acl:Write.

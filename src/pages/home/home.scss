@@ -1,0 +1,76 @@
+.P-home {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  // background: linear-gradient(#f48c8d, #f4c58d);
+  h1 {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 40px;
+  }
+  h2,
+  h3 {
+    margin: 1rem 1.2rem 1rem 1.4rem;
+  }
+
+  body * {
+    margin-left: 0.5rem;
+    margin-right: 1rem;
+  }
+
+  header {
+    border-bottom: #5795b9 solid;
+    padding-left: 0.5rem;
+  }
+
+  .panel {
+    border: 1px solid #005b81;
+    border-radius: 4px;
+    box-shadow: rgb(184, 196, 194) 0px 4px 10px -4px;
+    box-sizing: border-box;
+
+    padding: 1rem 1.5rem;
+    margin: 1rem 1.2rem 1rem 1.2rem;
+  }
+
+  #login {
+    background: white;
+  }
+
+  #read,
+  #results {
+    background: #e6f4f9;
+  }
+
+  #labelStatus[role="alert"] {
+    padding-left: 1rem;
+    color: purple;
+  }
+
+  .display {
+    margin-left: 1rem;
+    color: gray;
+  }
+
+  .disabled {
+    color: gray;
+    background-color: gray;
+  }
+  dl {
+    display: grid;
+    grid-template-columns: max-content auto;
+  }
+
+  dt {
+    grid-column-start: 1;
+  }
+
+  dd {
+    grid-column-start: 2;
+  }
+  .ipt-con {
+    margin: 20px auto 0;
+    text-align: center;
+  }
+}
