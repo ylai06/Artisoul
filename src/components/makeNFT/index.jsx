@@ -178,7 +178,6 @@ export const MakeNFT = ({ mainContainer }) => {
       }
 
       // Create NFT 1. upload image 2. create metadata
-      // const indexResource = postContainer.child(`${v4()}.ttl`);
       const metadata = nftContainer.child(`index.ttl`);
       // Create new data of type "Post" where the subject is the index
       // resource's uri, and write any changes to the indexResource.
@@ -225,7 +224,7 @@ export const MakeNFT = ({ mainContainer }) => {
       <Button className="btn" onClick={onSetAgent}>
         Set Agent ACL
       </Button>
-      <h2>Upload NFT</h2>
+      {/* <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
           <Input
@@ -259,7 +258,7 @@ export const MakeNFT = ({ mainContainer }) => {
         <Button type="primary" onClick={onSubmit}>
           Upload
         </Button>
-      </form>
+      </form> */}
     </div>
   );
 };

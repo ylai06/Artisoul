@@ -4,7 +4,7 @@ import Home from "../pages/home";
 import Account from "../pages/account";
 import ErrorPage from "../pages/error";
 import MintNFT from "../pages/mintNFT";
-import SellNFT from "../pages/sellNFT";
+import Marketplace from "../pages/marketplace";
 
 export const globalRouters = createBrowserRouter([
   {
@@ -20,12 +20,12 @@ export const globalRouters = createBrowserRouter([
     element: <Account />,
   },
   {
-    path: "/sellNFT",
-    element: <SellNFT />,
-  },
-  {
     path: "/mintNFT",
     element: <MintNFT />,
+  },
+  {
+    path: "/marketplace",
+    element: <Marketplace />,
   },
   {
     path: "/",

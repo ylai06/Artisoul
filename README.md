@@ -57,7 +57,7 @@ start a local node:
 `npx hardhat node`
 
 Deploy (Example):
-`npx hardhat run --network localhost scripts/deploy-market.ts`
+`npx hardhat run --network localhost scriptsNFT/deploy-market.js`
 - NFT marketplace Contract deployed to address: 0xaD16EC538856733c0b3C4fbba720df89cCaeb313
 
 ## Folders
