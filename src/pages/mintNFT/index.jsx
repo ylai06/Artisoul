@@ -52,7 +52,7 @@ const UploadImg = () => {
       <MakeNFT mainContainer={mainContainer} />
       <SellNFT mainContainer={mainContainer} />
       <MyNFT mainContainer={mainContainer} />
-      <hr />
+      {/* <hr />
       {mainContainer
         // Get all the children of the main container
         ?.children()
@@ -64,7 +64,7 @@ const UploadImg = () => {
             <PostNFT key={child.uri} postUri={child.uri} />
             <hr />
           </Fragment>
-        ))}
+        ))} */}
     </main>
   );
 };

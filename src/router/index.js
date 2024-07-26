@@ -4,7 +4,7 @@ import Home from "../pages/home";
 import Account from "../pages/account";
 import ErrorPage from "../pages/error";
 import MintNFT from "../pages/mintNFT";
-import Marketplace from "../pages/marketplace";
+import Market from "../pages/marketplace";
 
 export const globalRouters = createBrowserRouter([
   {
@@ -25,7 +25,7 @@ export const globalRouters = createBrowserRouter([
   },
   {
     path: "/marketplace",
-    element: <Marketplace />,
+    element: <Market />,
   },
   {
     path: "/",
