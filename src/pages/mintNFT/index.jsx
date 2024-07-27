@@ -1,6 +1,5 @@
 import { useLdo, useResource, useSolidAuth } from "@ldo/solid-react";
 import { useEffect, useState, Fragment } from "react";
-import { Blog } from "../../components/blog";
 import { MakeNFT } from "../../components/makeNFT";
 import { PostNFT } from "../../components/postNFT";
 import { SellNFT } from "../../components/sellNFT";

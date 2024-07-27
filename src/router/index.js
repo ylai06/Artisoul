@@ -5,6 +5,7 @@ import Account from "../pages/account";
 import ErrorPage from "../pages/error";
 import MintNFT from "../pages/mintNFT";
 import Market from "../pages/marketplace";
+import NFTPage from "../pages/nftPage";
 
 export const globalRouters = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ export const globalRouters = createBrowserRouter([
   {
     path: "/marketplace",
     element: <Market />,
+  },
+  {
+    path: "/viewNFT/:id",
+    element: <NFTPage />,
   },
   {
     path: "/",

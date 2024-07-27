@@ -4,15 +4,14 @@ import { useLdo, useResource, useSubject } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { WalletContext } from "../../index";
 
-export function NFTTile(data) {
-  const nftIndexUri = `${data.dataUri}index.ttl`;
+export const NFTCard = ({ dataUri, token }) => {
+  const nftIndexUri = `${dataUri}index.ttl`;
   const nftResource = useResource(nftIndexUri);
   const nft = useSubject(NFTShape, nftIndexUri);
-  // const { getResource } = useLdo();
-  // const { walletDetails } = useContext(WalletContext);
+  const { getResource } = useLdo();
+  const { walletDetails } = useContext(WalletContext);
   const imageResource = useResource(nft?.image?.["@id"]);
 
-  const PodUrl = "";
   const blobUrl = useMemo(() => {
     if (imageResource && imageResource.isBinary()) {
       return URL.createObjectURL(imageResource.getBlob());
@@ -24,10 +23,14 @@ export function NFTTile(data) {
     return <p>nftResource.status.message</p>;
   }
 
-  // const newTo = {
-  //   pathname: "/nftPage/" + nft.title,
-  // };
-  const newTo = nft?.image?.["@id"];
+  let newTo;
+  if (token) {
+    newTo = {
+      pathname: "/viewNFT/" + token,
+    };
+  } else {
+    newTo = nft?.image?.["@id"];
+  }
 
   return (
     <Link to={newTo} target="_blank">
@@ -41,4 +44,4 @@ export function NFTTile(data) {
       </div>
     </Link>
   );
-}
+};
