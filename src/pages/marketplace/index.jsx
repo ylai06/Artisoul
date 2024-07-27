@@ -1,37 +1,8 @@
 import Marketplace from "../../contracts/Marketplace.json";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useResource, useSubject } from "@ldo/solid-react";
-import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { NFTCard } from "../../components/card";
 
-// const NFTImage = ({ postUri }) => {
-//   const nftIndexUri = `${postUri}index.ttl`;
-//   const nftResource = useResource(nftIndexUri);
-//   const nft = useSubject(NFTShape, nftIndexUri);
-//   const imageResource = useResource(nft?.image?.["@id"]);
-//   const blobUrl = useMemo(() => {
-//     if (imageResource && imageResource.isBinary()) {
-//       return URL.createObjectURL(imageResource.getBlob());
-//     }
-//     return undefined;
-//   }, [imageResource]);
-
-//   if (nftResource.status.isError) {
-//     return <p>something wrong with this image...</p>;
-//   }
-
-//   return (
-//     <div>
-//       <strong>Name: </strong>
-//       <span>{nft.title}</span>
-//       <br />
-//       <img src={blobUrl} alt={nft.title} />
-//     </div>
-//   );
-// };
-
 const Market = () => {
-
   const [data, setData] = useState(null);
   const [dataFetched, setFetched] = useState(false);
   const ethers = require("ethers");
@@ -101,7 +72,7 @@ const Market = () => {
                 <br />
                 <strong>Metadata URI: </strong>
                 <span>{item.tokenURI}</span>
-                <NFTCard dataUri={item.tokenURI} />
+                <NFTCard dataUri={item.tokenURI} token={item.tokenId}/>
               </div>
             );
           })}

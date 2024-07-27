@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useLdo, useResource, useSubject } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { WalletContext } from "../../index";
+import { Button } from "antd";
 
 export const NFTCard = ({ dataUri, token }) => {
   const nftIndexUri = `${dataUri}index.ttl`;
   const nftResource = useResource(nftIndexUri);
   const nft = useSubject(NFTShape, nftIndexUri);
-  const { getResource } = useLdo();
-  const { walletDetails } = useContext(WalletContext);
+  // const { getResource } = useLdo();
+  // const { walletDetails } = useContext(WalletContext);
   const imageResource = useResource(nft?.image?.["@id"]);
 
   const blobUrl = useMemo(() => {
@@ -33,7 +34,7 @@ export const NFTCard = ({ dataUri, token }) => {
   }
 
   return (
-    <Link to={newTo} target="_blank">
+    <Link to={newTo}>
       <div className="container">
         <img src={blobUrl} alt="" className="image" crossOrigin="anonymous" />
       </div>
@@ -41,6 +42,7 @@ export const NFTCard = ({ dataUri, token }) => {
         <strong className="title">{nft.title}</strong>
         <p>owner: {nft.owner}</p>
         <p className="description">{nft.description}</p>
+        {token && <Button>Details</Button>}
       </div>
     </Link>
   );
