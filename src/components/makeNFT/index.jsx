@@ -49,14 +49,19 @@ export const MakeNFT = ({ mainContainer }) => {
     const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
       fetch: fetch,
     });
+    console.log("myDatasetWithAcl=>", myDatasetWithAcl);
     let newRule = {
       read: true,
       append: false,
       write: false,
       control: false,
     };
-    const resourceAcl = getResourceAcl(myDatasetWithAcl);
-    const updatedAcl = setPublicResourceAccess(resourceAcl, newRule);
+    let resourceAcl = getResourceAcl(myDatasetWithAcl);
+    if (!resourceAcl) {
+      resourceAcl = createAcl(myDatasetWithAcl);
+    }
+    console.log("resourceAcl=>", resourceAcl);
+    const updatedAcl = setPublicDefaultAccess(resourceAcl, newRule);
     await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     console.log("Set public Access=>", updatedAcl);
   }, []);
@@ -77,12 +82,6 @@ export const MakeNFT = ({ mainContainer }) => {
       write: true,
       control: true,
     });
-    // updatedAcl = setAgentDefaultAccess(updatedAcl, webId, {
-    //   read: true,
-    //   append: true,
-    //   write: false,
-    //   control: true,
-    // });
     await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     const myUpdateDatasetWithAcl = await getSolidDatasetWithAcl(
       myContainerUrl,
