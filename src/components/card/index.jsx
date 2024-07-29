@@ -6,7 +6,9 @@ import { WalletContext } from "../../index";
 import { Button } from "antd";
 
 export const NFTCard = ({ dataUri, token }) => {
-  const nftIndexUri = `${dataUri}index.ttl`;
+  const nftIndexUri = dataUri.endsWith("index.ttl")
+    ? `${dataUri}`
+    : `${dataUri}index.ttl`;
   const nftResource = useResource(nftIndexUri);
   const nft = useSubject(NFTShape, nftIndexUri);
   // const { getResource } = useLdo();

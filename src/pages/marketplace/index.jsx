@@ -1,12 +1,89 @@
-import Marketplace from "../../contracts/Marketplace.json";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { QueryEngine } from "@comunica/query-sparql-solid";
+import Marketplace from "../../contracts/Marketplace.json";
 import { NFTCard } from "../../components/card";
+import { Button, Input } from "antd";
+import "./style.scss";
 
 const Market = () => {
   const [data, setData] = useState(null);
   const [dataFetched, setFetched] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
+  const searchResult = document.getElementById("searchResult");
+
+  const pointerPods = [
+    "https://solidweb.me/NFT-asset/my-solid-app/47d9896a-9f26-4c6a-812f-6f2e6c379b2b/index.ttl",
+    "https://solidweb.me/NFT-asset/my-solid-app/d8fcee9d-3956-4a92-8b27-7429a2ff260f/index.ttl",
+    "https://solidweb.me/User1/my-solid-app/35d799e1-9c57-4a00-9851-7054a5c43c19/index.ttl",
+    "https://solidweb.me/User1/my-solid-app/2c445824-2082-4932-b2fa-9b470627462b/index.ttl",
+  ];
+
+  async function searchNFTs() {
+    const myEngine = new QueryEngine();
+    const returnValue = [];
+    searchResult.innerText = "searching...";
+    if (searchValue) {
+      const search = searchValue.toLowerCase();
+      try {
+        const bindingsStream = await myEngine.queryBindings(
+          `
+          PREFIX schema: <http://schema.org/>
+          SELECT ?nft ?description ?title ?image ?creator ?owner ?uploadDate WHERE {
+            ?nft schema:description ?description;
+                schema:title ?title;
+                schema:image ?image;
+                schema:creator ?creator;
+                schema:owner ?owner;
+                schema:uploadDate ?uploadDate.
+            FILTER(CONTAINS(LCASE(?description), "${search}")|| CONTAINS(LCASE(?title), "${search}"))
+          }`,
+          {
+            // Sources field is optional. Will be derived from query if not provided.
+            sources: pointerPods, // Sets your profile as query source
+            // Session is optional for authenticated requests
+            //'@comunica/actor-http-inrupt-solid-client-authn:session': session,
+            // The lenient flag will make the engine not crash on invalid documents
+            lenient: true,
+          }
+        );
+        bindingsStream.on("data", (binding) => {
+          console.log(`Data: ${binding.toString()}`);
+          returnValue.push({
+            tokenURI: binding.get("nft").value,
+            title: binding.get("title").value,
+            description: binding.get("description").value,
+            image: binding.get("image").value,
+            creator: binding.get("creator").value,
+            owner: binding.get("owner").value,
+            uploadDate: binding.get("uploadDate").value,
+          });
+        });
+        bindingsStream.on("end", () => {
+          console.log("Return value: ", returnValue, returnValue.length);
+          searchResult.textContent = "";
+          console.log("Query execution completed.");
+          if (returnValue.length === 0) {
+            searchResult.textContent = "No results found";
+            setData(null);
+          } else {
+            setData(returnValue);
+          }
+        });
+        bindingsStream.on("error", (error) => {
+          console.error("Error in query result stream:", error);
+        });
+      } catch (error) {
+        console.error("Error: ", error);
+        searchResult.textContent = "Error: " + error;
+      }
+    } else {
+      searchResult.textContent = "Please enter a search term";
+    }
+    setSearchValue("");
+    setFetched(true);
+  }
 
   async function getAllNFTs() {
     //Pull the deployed contract instance
@@ -37,25 +114,50 @@ const Market = () => {
         return item;
       })
     );
+    console.log("Items: ", items);
     setFetched(true);
     setData(items);
   }
 
   useEffect(() => {
-    if (!dataFetched) {
+    console.log("useEffect!");
+    if (!dataFetched && data === null) {
+      console.log("fetching ALL...");
       getAllNFTs();
+    } else if (!dataFetched) {
+      console.log("fetching search...");
+      searchNFTs();
     }
-  }, [dataFetched]);
+  }, [dataFetched, data]);
 
   return (
     <div>
       <h1>Marketplace</h1>
+      <div className="search-box">
+        <h2>search key words</h2>
+        <div>
+          <Input
+            type="search"
+            id="searchInput"
+            placeholder="Search..."
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+          <Button
+            type="primary"
+            id="searchButton"
+            onClick={() => setFetched(false)}
+          >
+            Search
+          </Button>
+        </div>
+        <p id="searchResult"></p>
+      </div>
       <div>
         {data &&
           data.map((item, index) => {
             return (
               <div key={index}>
-                <h2>{item.name}</h2>
+                {/* <h2>{item.name}</h2>
                 <img src={item.image} alt={item.name} />
                 <p>{item.description}</p>
                 <strong>Token ID: </strong>
@@ -64,15 +166,15 @@ const Market = () => {
                 <strong>Seller: </strong>
                 <span>{item.seller}</span>
                 <br />
-                {/* <strong>Owner: </strong>
-              <span>{item.owner}</span>
-              <br /> */}
+                <strong>Owner: </strong>
+                <span>{item.owner}</span>
+                <br />
                 <strong>Price: </strong>
                 <span>{item.price} ETH</span>
                 <br />
                 <strong>Metadata URI: </strong>
-                <span>{item.tokenURI}</span>
-                <NFTCard dataUri={item.tokenURI} token={item.tokenId}/>
+                <span>{item.tokenURI}</span> */}
+                <NFTCard dataUri={item.tokenURI} token={item.tokenId} />
               </div>
             );
           })}
