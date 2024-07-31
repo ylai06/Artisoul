@@ -19,10 +19,7 @@ export const MyNFT = ({ mainContainer }) => {
           .filter((child) => child.type === "container")
           // Render a "Post" for each child
           .map((child) => {
-            console.log("child: ", child);
-            return (
-              <NFTCard dataUri={child.uri} key={child.uri} />
-            );
+            return <NFTCard dataUri={child.uri} key={child.uri} />;
           })}
       </div>
     </div>

@@ -17,11 +17,11 @@ const UploadImg = () => {
       if (session.webId) {
         // Get the WebId resource
         const webIdResource = await getResource(session.webId);
-        console.log("webIdResource=>", webIdResource);
+        // console.log("webIdResource=>", webIdResource);
         // Get the root container associated with that WebId
         const rootContainerResult = await webIdResource.getRootContainer();
         // Check if there is an error
-        console.log("rootContainerResult=>", rootContainerResult);
+        // console.log("rootContainerResult=>", rootContainerResult);
         if (rootContainerResult.isError) {
           setIsLoading(false);
           return;

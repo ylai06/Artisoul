@@ -1,7 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
-import { useSolidAuth, useLdo } from "@ldo/solid-react";
-import { setWacRuleForAclUri } from "@ldo/solid";
+import {
+  useSolidAuth,
+  useLdo,
+  useSubject,
+  useResource,
+} from "@ldo/solid-react";
+import { setWacRuleForAclUri, deleteResource } from "@ldo/solid";
+import { createDataset } from "@ldo/dataset";
 import { Button, Input } from "antd";
 import { v4 } from "uuid";
 import {
@@ -24,7 +30,8 @@ import "./makeNFT.scss";
 
 export const MakeNFT = ({ mainContainer }) => {
   const [message, setMessage] = useState("");
-  const [selectedFile, setSelectedFile] = useState();
+  const [selectedFile, setSelectedFile] = useState([]);
+  const [deleteState, setDeleteState] = useState(false);
   const { createData, commitData } = useLdo();
   const { session, fetch } = useSolidAuth();
   const webId = session.webId;
@@ -41,7 +48,7 @@ export const MakeNFT = ({ mainContainer }) => {
     console.log("public Access=>", publicAccess);
   }, []);
 
-  // 設定公共訪問權限
+  // 設定公共訪問權限（首次登入）
   const onSetPublic = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -49,19 +56,55 @@ export const MakeNFT = ({ mainContainer }) => {
     const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
       fetch: fetch,
     });
-    console.log("myDatasetWithAcl=>", myDatasetWithAcl);
-    let newRule = {
-      read: true,
-      append: false,
-      write: false,
-      control: false,
-    };
     let resourceAcl = getResourceAcl(myDatasetWithAcl);
+    let updatedAcl;
     if (!resourceAcl) {
       resourceAcl = createAcl(myDatasetWithAcl);
+      console.log("resourceAcl=>", resourceAcl);
+      let newRule = {
+        read: true,
+        append: true,
+        write: true,
+        control: false,
+      };
+      updatedAcl = setPublicResourceAccess(resourceAcl, newRule);
+      await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
+    } else {
+      updatedAcl = setPublicResourceAccess(resourceAcl, {
+        read: true,
+        append: true,
+        write: true,
+        control: false,
+      });
+      await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     }
-    console.log("resourceAcl=>", resourceAcl);
-    const updatedAcl = setPublicDefaultAccess(resourceAcl, newRule);
+    alert("Successfully set public ACL!!");
+    console.log("Set public Access=>", updatedAcl);
+  }, []);
+
+  // 設定子資源公共訪問權限
+  const onSetResourcePublic = useCallback(async (e) => {
+    e.preventDefault();
+    if (!mainContainer) return;
+    const myContainerUrl = mainContainer.uri;
+    console.log("myContainerUrl", myContainerUrl);
+    const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
+      fetch: fetch,
+    });
+    console.log("myDatasetWithAcl=>", myDatasetWithAcl);
+    let resourceAcl = getResourceAcl(myDatasetWithAcl);
+    let updatedAcl;
+    if (!resourceAcl) {
+      alert("You need to set public access first!!");
+      return;
+    }
+    let newRule = {
+      read: true,
+      append: true,
+      write: true,
+      control: false,
+    };
+    updatedAcl = await setPublicDefaultAccess(resourceAcl, newRule);
     await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     console.log("Set public Access=>", updatedAcl);
   }, []);
@@ -140,6 +183,51 @@ export const MakeNFT = ({ mainContainer }) => {
     // await commitData(aclData);
   }, []);
 
+  const deleteSource = [
+    // "https://solidweb.me/NFT-asset/my-solid-app/935b33a0-0dd3-44de-8174-edd6a3973428/",
+    // "https://solidweb.me/NFT-asset/my-solid-app/3caa785f-e292-49b5-b713-8eb223d5e231/",
+    // <------ 這裡是已經刪除的資料，還沒刪除資料夾（Container） ------>
+    // "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/",
+    // "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/cat2.jpeg",
+  ];
+
+  const metaInfo = ({ dataUri }) => {
+    // const nft = useSubject(NFTShape, dataUri);
+    // const imageResource = useResource(nft?.image?.["@id"]);
+    // console.log("nft=>", nft?.image?.["@id"]);
+    // return nft?.image?.["@id"] || null;
+  };
+  // 刪除User pods 中的資料
+  // const onDelete = async (e) => {
+  //   e.preventDefault();
+  //   if (!mainContainer) return;
+  //   // mainContainer.delete();
+  //   const res = await mainContainer.children();
+  //   setMessage("Deleting...");
+  //   if (res) {
+  //     res.forEach(async (child) => {
+  //       // console.log("child=>", child.uri);
+  //       if (deleteSource.includes(child.uri)) {
+  //         console.log("child=>", child.uri);
+  //         const myDatasetWithAcl = await getSolidDatasetWithAcl(child.uri, {
+  //           fetch: fetch,
+  //         });
+  //         const publicAccess = getPublicAccess(myDatasetWithAcl);
+  //         console.log("child Access=>", publicAccess);
+
+  //         // const imgUri = metaInfo(child.uri);
+  //         // try {
+  //         //   await deleteResource(`${child.uri}index.ttl`);
+  //         //   if (imgUri) await deleteResource(imgUri);
+  //         //   console.log("delRes=>", `${child.uri}index.ttl`);
+  //         // } catch (err) {
+  //         //   console.log("delRes=>", err);
+  //         // }
+  //       }
+  //     });
+  //   }
+  // };
+
   const onSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -207,6 +295,52 @@ export const MakeNFT = ({ mainContainer }) => {
     [message, selectedFile, mainContainer, createData, commitData]
   );
 
+  useEffect(() => {
+    if (deleteState) {
+      if (!mainContainer) return;
+      const res = mainContainer.children();
+
+      if (res) {
+        res.forEach(async (child) => {
+          if (deleteSource.includes(child.uri)) {
+            // check acl access of the child
+            /**
+            const myDatasetWithAcl = await getSolidDatasetWithAcl(child.uri, {
+              fetch: fetch,
+            });
+            const publicAccess = getPublicAccess(myDatasetWithAcl);
+            console.log("child Access=>", publicAccess);
+             */
+            let file = child.children();
+            // delete index.ttl and image in the folder
+            file.forEach(async (item) => {
+              console.log("item=>", item.uri);
+              try {
+                await deleteResource(item.uri);
+                console.log("delRes=>", child.uri);
+              } catch (err) {
+                console.log("delError=>", err);
+                return;
+              }
+            });
+            file = child.children();
+            // delete folder
+            if (file.length === 0) {
+              try {
+                await deleteResource(child.uri);
+                console.log("delRes=>", child.uri);
+              } catch (err) {
+                console.log("delError=>", err);
+                return;
+              }
+            }
+          }
+        });
+      }
+      setDeleteState(false);
+    }
+  }, [deleteState]);
+
   return (
     <div>
       <h2>Set ACL</h2>
@@ -216,13 +350,24 @@ export const MakeNFT = ({ mainContainer }) => {
       <Button className="btn" onClick={onSetPublic}>
         Set Public ACL
       </Button>
+      <Button className="btn" onClick={onSetResourcePublic}>
+        Set Child Resource ACL
+      </Button>
       <br />
+      <Button className="btn" onClick={() => setDeleteState(true)}>
+        Delete problematic resources
+      </Button>
+      {/* <Button className="btn" onClick={onDelete}>
+        Delete problematic resources
+      </Button> */}
+      {/* 
+      <p>Set and get Agent ACL</p>
       <Button className="btn" onClick={onGetAgent}>
         Get Agent ACL file
       </Button>
       <Button className="btn" onClick={onSetAgent}>
         Set Agent ACL
-      </Button>
+      </Button> */}
       {/* <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
