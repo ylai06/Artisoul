@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { RouterProvider } from "react-router-dom";
 import { globalRouters } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";
 
-export const WalletContext = React.createContext(null);
+export const WalletContext = createContext(null);
+export const PodContext = createContext();
 
 const AppWrapper = () => {
   const [walletDetails, setWalletDetails] = useState({
@@ -13,10 +14,13 @@ const AppWrapper = () => {
     walletName: "",
     walletBalance: 0,
   });
+  const [podLatestState, setPodLatestState] = useState(true);
   return (
     <BrowserSolidLdoProvider>
       <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
-        <RouterProvider router={globalRouters} />
+        <PodContext.Provider value={{ podLatestState, setPodLatestState }}>
+          <RouterProvider router={globalRouters} />
+        </PodContext.Provider>
       </WalletContext.Provider>
     </BrowserSolidLdoProvider>
   );

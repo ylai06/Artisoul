@@ -1,11 +1,7 @@
-import Marketplace from "../../contracts/Marketplace.json";
-import { useLdo, useResource, useSubject } from "@ldo/solid-react";
-import { useState, useContext, useMemo } from "react";
-import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
-import { WalletContext } from "../../index";
-import { Link } from "react-router-dom";
 import { NFTCard } from "../card";
 import "./style.scss";
+// import { useEffect, useContext } from "react";
+// import { PodContext } from "../..";
 
 export const MyNFT = ({ mainContainer }) => {
   return (

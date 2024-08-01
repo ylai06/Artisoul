@@ -1,12 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
-import {
-  useSolidAuth,
-  useLdo,
-  useSubject,
-  useResource,
-} from "@ldo/solid-react";
-import { setWacRuleForAclUri, deleteResource } from "@ldo/solid";
+import { useSolidAuth, useLdo } from "@ldo/solid-react";
+import { setWacRuleForAclUri, deleteResource, readResource } from "@ldo/solid";
 import { createDataset } from "@ldo/dataset";
 import { Button, Input } from "antd";
 import { v4 } from "uuid";
@@ -27,13 +22,15 @@ import {
   getResourceAcl,
 } from "@inrupt/solid-client";
 import "./makeNFT.scss";
+import { PodContext } from "../..";
 
-export const MakeNFT = ({ mainContainer }) => {
+export const SetACL = ({ mainContainer }) => {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState([]);
   const [deleteState, setDeleteState] = useState(false);
   const { createData, commitData } = useLdo();
   const { session, fetch } = useSolidAuth();
+  const { setPodLatestState } = useContext(PodContext);
   const webId = session.webId;
 
   // 查看公共訪問權限
@@ -183,51 +180,6 @@ export const MakeNFT = ({ mainContainer }) => {
     // await commitData(aclData);
   }, []);
 
-  const deleteSource = [
-    // "https://solidweb.me/NFT-asset/my-solid-app/935b33a0-0dd3-44de-8174-edd6a3973428/",
-    // "https://solidweb.me/NFT-asset/my-solid-app/3caa785f-e292-49b5-b713-8eb223d5e231/",
-    // <------ 這裡是已經刪除的資料，還沒刪除資料夾（Container） ------>
-    // "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/",
-    // "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/cat2.jpeg",
-  ];
-
-  const metaInfo = ({ dataUri }) => {
-    // const nft = useSubject(NFTShape, dataUri);
-    // const imageResource = useResource(nft?.image?.["@id"]);
-    // console.log("nft=>", nft?.image?.["@id"]);
-    // return nft?.image?.["@id"] || null;
-  };
-  // 刪除User pods 中的資料
-  // const onDelete = async (e) => {
-  //   e.preventDefault();
-  //   if (!mainContainer) return;
-  //   // mainContainer.delete();
-  //   const res = await mainContainer.children();
-  //   setMessage("Deleting...");
-  //   if (res) {
-  //     res.forEach(async (child) => {
-  //       // console.log("child=>", child.uri);
-  //       if (deleteSource.includes(child.uri)) {
-  //         console.log("child=>", child.uri);
-  //         const myDatasetWithAcl = await getSolidDatasetWithAcl(child.uri, {
-  //           fetch: fetch,
-  //         });
-  //         const publicAccess = getPublicAccess(myDatasetWithAcl);
-  //         console.log("child Access=>", publicAccess);
-
-  //         // const imgUri = metaInfo(child.uri);
-  //         // try {
-  //         //   await deleteResource(`${child.uri}index.ttl`);
-  //         //   if (imgUri) await deleteResource(imgUri);
-  //         //   console.log("delRes=>", `${child.uri}index.ttl`);
-  //         // } catch (err) {
-  //         //   console.log("delRes=>", err);
-  //         // }
-  //       }
-  //     });
-  //   }
-  // };
-
   const onSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -295,11 +247,17 @@ export const MakeNFT = ({ mainContainer }) => {
     [message, selectedFile, mainContainer, createData, commitData]
   );
 
+  const deleteSource = [
+    // <------ 這裡是要刪除的資料和資料夾
+    "https://solidweb.me/NFT-asset/my-solid-app/906f1ecb-94c3-4de5-98d9-c91ebd64b3b7/",
+    "https://solidweb.me/NFT-asset/my-solid-app/860efe8f-a18b-4c94-82db-9182336d9e6e/",
+    "https://solidweb.me/NFT-asset/my-solid-app/2ec0f6a2-4b07-463e-bc9f-239b444cc55a/",
+  ];
+
   useEffect(() => {
     if (deleteState) {
       if (!mainContainer) return;
       const res = mainContainer.children();
-
       if (res) {
         res.forEach(async (child) => {
           if (deleteSource.includes(child.uri)) {
@@ -311,33 +269,37 @@ export const MakeNFT = ({ mainContainer }) => {
             const publicAccess = getPublicAccess(myDatasetWithAcl);
             console.log("child Access=>", publicAccess);
              */
+            // delFolder = [...delFolder, child.uri];
             let file = child.children();
             // delete index.ttl and image in the folder
             file.forEach(async (item) => {
-              console.log("item=>", item.uri);
               try {
-                await deleteResource(item.uri);
-                console.log("delRes=>", child.uri);
+                const result = await deleteResource(item.uri);
+                console.log("delItem=>", result);
+                let checkResponse = await readResource(item.uri);
+                while (checkResponse.type !== "absentReadSuccess") {
+                  checkResponse = await readResource(item.uri);
+                  console.log("checkResponse=>", checkResponse);
+                }
               } catch (err) {
-                console.log("delError=>", err);
+                console.log("delResError=>", err);
                 return;
               }
             });
-            file = child.children();
-            // delete folder
-            if (file.length === 0) {
-              try {
-                await deleteResource(child.uri);
-                console.log("delRes=>", child.uri);
-              } catch (err) {
-                console.log("delError=>", err);
-                return;
-              }
+
+            try {
+              await deleteResource(child.uri);
+              console.log("delFolder=>", child.uri);
+            } catch (err) {
+              console.log("delFolderError=>", err);
+              return;
             }
           }
         });
       }
       setDeleteState(false);
+      console.log("setPodLatestState in setACL");
+      // setPodLatestState(false);
     }
   }, [deleteState]);
 
@@ -368,7 +330,7 @@ export const MakeNFT = ({ mainContainer }) => {
       <Button className="btn" onClick={onSetAgent}>
         Set Agent ACL
       </Button> */}
-      {/* <h2>Upload NFT</h2>
+      <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
           <Input
@@ -402,7 +364,7 @@ export const MakeNFT = ({ mainContainer }) => {
         <Button type="primary" onClick={onSubmit}>
           Upload
         </Button>
-      </form> */}
+      </form>
     </div>
   );
 };

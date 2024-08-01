@@ -1,13 +1,12 @@
 import { useLdo, useResource, useSolidAuth } from "@ldo/solid-react";
-import { useEffect, useState, Fragment } from "react";
-import { MakeNFT } from "../../components/makeNFT";
-import { PostNFT } from "../../components/postNFT";
+import { useEffect, useState, createContext, useContext } from "react";
+import { SetACL } from "../../components/setACL";
 import { SellNFT } from "../../components/sellNFT";
-import { MyNFT } from "../../components/myNFT"; 
+import { MyNFT } from "../../components/myNFT";
+import { PodContext } from "../..";
 
 const UploadImg = () => {
   const { session } = useSolidAuth();
-
   const { getResource } = useLdo();
   const [mainContainerUri, setMainContainerUri] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +15,7 @@ const UploadImg = () => {
     const fetchData = async () => {
       if (session.webId) {
         // Get the WebId resource
-        const webIdResource = await getResource(session.webId);
+        const webIdResource = getResource(session.webId);
         // console.log("webIdResource=>", webIdResource);
         // Get the root container associated with that WebId
         const rootContainerResult = await webIdResource.getRootContainer();
@@ -48,27 +47,23 @@ const UploadImg = () => {
 
   return (
     <main>
-      <MakeNFT mainContainer={mainContainer} />
-      <SellNFT mainContainer={mainContainer} />
+      <SetACL mainContainer={mainContainer} />
       <MyNFT mainContainer={mainContainer} />
-      {/* <hr />
-      {mainContainer
-        // Get all the children of the main container
-        ?.children()
-        // Filter out children that aren't containers themselves
-        .filter((child) => child.type === "container")
-        // Render a "Post" for each child
-        .map((child) => (
-          <Fragment key={child.uri}>
-            <PostNFT key={child.uri} postUri={child.uri} />
-            <hr />
-          </Fragment>
-        ))} */}
     </main>
   );
 };
 
 function MintNFT() {
+  const { podLatestState, setPodLatestState } = useContext(PodContext);
+
+  useEffect(() => {
+    console.log("podLatestState=>", podLatestState);
+    if (!podLatestState) {
+      console.log("podLatestState=>", !podLatestState);
+      setPodLatestState(true);
+    }
+  }, [podLatestState]);
+
   return (
     <div>
       <h1>Mint NFT</h1>
