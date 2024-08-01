@@ -8,7 +8,6 @@ function Home() {
   const { session } = useSolidAuth();
   return (
     <div className="P-home">
-      <h1>ArtiSoul - A Digital Artwork NFT Marketplace</h1>
       <Header />
       {session.isLoggedIn ? (
         <div className="ipt-con">

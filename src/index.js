@@ -4,6 +4,7 @@ import App from "./App";
 import { RouterProvider } from "react-router-dom";
 import { globalRouters } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";
+import "bootstrap/dist/css/bootstrap.css";
 
 export const WalletContext = createContext(null);
 export const PodContext = createContext();

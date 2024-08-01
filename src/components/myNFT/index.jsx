@@ -1,5 +1,5 @@
 import { NFTCard } from "../card";
-import "./style.scss";
+import "./myNFT.scss";
 // import { useEffect, useContext } from "react";
 // import { PodContext } from "../..";
 
