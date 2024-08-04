@@ -20,9 +20,10 @@ import {
   hasAccessibleAcl,
   createAclFromFallbackAcl,
   getResourceAcl,
+  getSolidDataset,
 } from "@inrupt/solid-client";
+import { deleteRecursively } from "../../api/aclControl";
 import "./makeNFT.scss";
-import { PodContext } from "../..";
 
 export const SetACL = ({ mainContainer }) => {
   const [message, setMessage] = useState("");
@@ -30,7 +31,6 @@ export const SetACL = ({ mainContainer }) => {
   const [deleteState, setDeleteState] = useState(false);
   const { createData, commitData } = useLdo();
   const { session, fetch } = useSolidAuth();
-  const { setPodLatestState } = useContext(PodContext);
   const webId = session.webId;
 
   // 查看公共訪問權限
@@ -192,6 +192,7 @@ export const SetACL = ({ mainContainer }) => {
       const postContainerResult = await mainContainer.createChildAndOverwrite(
         `${v4()}/`
       );
+      console.log("postContainerResult=>", postContainerResult);
       // Check if there was an error
       if (postContainerResult.isError) {
         alert(postContainerResult.message);
@@ -199,7 +200,9 @@ export const SetACL = ({ mainContainer }) => {
       }
       // Get the created container
       const nftContainer = postContainerResult.resource;
+      console.log("nftContainer=>", nftContainer);
 
+      console.log("selectedFile=>", selectedFile);
       // Upload Image
       let uploadedImage;
       if (selectedFile) {
@@ -208,6 +211,8 @@ export const SetACL = ({ mainContainer }) => {
           selectedFile,
           selectedFile.type
         );
+        console.log("result=>", result);
+
         if (result.isError) {
           alert(result.message);
           await nftContainer.delete();
@@ -248,10 +253,9 @@ export const SetACL = ({ mainContainer }) => {
   );
 
   const deleteSource = [
+    "https://solidweb.me/User1/my-solid-app/8e248fb8-415b-412c-9156-cabea93a85c0/",
     // <------ 這裡是要刪除的資料和資料夾
-    "https://solidweb.me/NFT-asset/my-solid-app/906f1ecb-94c3-4de5-98d9-c91ebd64b3b7/",
-    "https://solidweb.me/NFT-asset/my-solid-app/860efe8f-a18b-4c94-82db-9182336d9e6e/",
-    "https://solidweb.me/NFT-asset/my-solid-app/2ec0f6a2-4b07-463e-bc9f-239b444cc55a/",
+    // <------ 這裡是要刪除的資料夾
   ];
 
   useEffect(() => {
@@ -269,37 +273,31 @@ export const SetACL = ({ mainContainer }) => {
             const publicAccess = getPublicAccess(myDatasetWithAcl);
             console.log("child Access=>", publicAccess);
              */
+            // console.log("child=>", child.uri);
             // delFolder = [...delFolder, child.uri];
             let file = child.children();
-            // delete index.ttl and image in the folder
-            file.forEach(async (item) => {
-              try {
-                const result = await deleteResource(item.uri);
-                console.log("delItem=>", result);
-                let checkResponse = await readResource(item.uri);
-                while (checkResponse.type !== "absentReadSuccess") {
-                  checkResponse = await readResource(item.uri);
-                  console.log("checkResponse=>", checkResponse);
-                }
-              } catch (err) {
-                console.log("delResError=>", err);
-                return;
-              }
+            console.log("file=>", file);
+            const dataset = await getSolidDataset(`${child.uri}`, {
+              fetch: fetch,
             });
 
-            try {
-              await deleteResource(child.uri);
-              console.log("delFolder=>", child.uri);
-            } catch (err) {
-              console.log("delFolderError=>", err);
-              return;
-            }
+            // delete index.ttl and image in the folder
+            deleteRecursively(dataset, {
+              fetch: fetch,
+            });
+
+            // delete the folder
+            // try {
+            //   await deleteResource(child.uri);
+            //   console.log("delFolder=>", child.uri);
+            // } catch (err) {
+            //   console.log("delFolderError=>", err);
+            //   return;
+            // }
           }
         });
       }
       setDeleteState(false);
-      console.log("setPodLatestState in setACL");
-      // setPodLatestState(false);
     }
   }, [deleteState]);
 
@@ -330,8 +328,8 @@ export const SetACL = ({ mainContainer }) => {
       <Button className="btn" onClick={onSetAgent}>
         Set Agent ACL
       </Button> */}
-      
-      {/* <h2>Upload NFT</h2>
+
+      <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
           <Input
@@ -351,7 +349,7 @@ export const SetACL = ({ mainContainer }) => {
         <Button type="primary" onClick={onSubmit}>
           Upload
         </Button>
-      </form> */}
+      </form>
     </div>
   );
 };

@@ -8,7 +8,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./common/styles/frame.scss";
 
 export const WalletContext = createContext(null);
-export const PodContext = createContext();
 
 const AppWrapper = () => {
   const [walletDetails, setWalletDetails] = useState({
@@ -16,13 +15,10 @@ const AppWrapper = () => {
     walletName: "",
     walletBalance: 0,
   });
-  const [podLatestState, setPodLatestState] = useState(true);
   return (
     <BrowserSolidLdoProvider>
       <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
-        <PodContext.Provider value={{ podLatestState, setPodLatestState }}>
-          <RouterProvider router={globalRouters}></RouterProvider>
-        </PodContext.Provider>
+        <RouterProvider router={globalRouters}></RouterProvider>
       </WalletContext.Provider>
     </BrowserSolidLdoProvider>
   );

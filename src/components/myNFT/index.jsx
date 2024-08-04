@@ -1,7 +1,6 @@
 import { NFTCard } from "../card";
 import "./myNFT.scss";
 // import { useEffect, useContext } from "react";
-// import { PodContext } from "../..";
 
 export const MyNFT = ({ mainContainer }) => {
   return (

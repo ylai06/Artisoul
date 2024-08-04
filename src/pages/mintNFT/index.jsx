@@ -4,7 +4,6 @@ import { SetACL } from "../../components/setACL";
 import { Header } from "../../components/header";
 import { CreateNFT } from "../../components/createNFT";
 import { MyNFT } from "../../components/myNFT";
-import { PodContext } from "../..";
 import "./mintNFT.scss";
 
 const UploadImg = () => {
@@ -42,40 +41,30 @@ const UploadImg = () => {
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
-  // if (!session.isLoggedIn)
-  //   return <p>This part is for upload your digital asset. Log in first.</p>;
+  if (!session.isLoggedIn)
+    return <p>This part is for upload your digital asset. Log in first.</p>;
 
-  // if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="intro-box">
       <SetACL mainContainer={mainContainer} />
-      {/* <MyNFT mainContainer={mainContainer} /> */}
+      <MyNFT mainContainer={mainContainer} />
       <CreateNFT mainContainer={mainContainer} />
     </div>
   );
 };
 
 function MintNFT() {
-  const { podLatestState, setPodLatestState } = useContext(PodContext);
-
-  useEffect(() => {
-    console.log("podLatestState=>", podLatestState);
-    if (!podLatestState) {
-      console.log("podLatestState=>", !podLatestState);
-      setPodLatestState(true);
-    }
-  }, [podLatestState]);
-
   return (
     <div className="webpage">
       <Header />
       <div className="intro-box">
         <h1>Create your own NFT</h1>
         <p>
-          *Before minting, you should allow the public to access your pod. Remind
-          you that this only allow public read access, while you retain full
-          access to your data.
+          *Before minting, you should allow the public to access your pod.
+          Remind you that this only allow public read access, while you retain
+          full access to your data.
         </p>
       </div>
       <UploadImg />
