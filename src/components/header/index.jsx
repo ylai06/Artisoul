@@ -4,6 +4,7 @@ import { SolidProfileShapeShapeType } from "../../.ldo/solidProfile.shapeTypes";
 import { Button } from "antd";
 import { ethers } from "ethers";
 import { WalletContext } from "../../index";
+import "./header.scss";
 
 export const Header = () => {
   const { session, login, logout } = useSolidAuth();
@@ -46,8 +47,107 @@ export const Header = () => {
   }
 
   return (
-    <header>
-      {session.isLoggedIn ? (
+    <div className="hero-anime">
+      <div class="navigation-wrap bg-light start-header start-style">
+        <div class="">
+          <div class="row">
+            <div class="col-12">
+              <nav class="navbar navbar-expand-md navbar-light">
+                <a class="navbar-brand" href="#" target="_blank">
+                  ArtiSoul
+                </a>
+                <button
+                  class="navbar-toggler"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+                >
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div
+                  class="collapse navbar-collapse justify-content-end"
+                  id="navbarSupportedContent"
+                >
+                  <ul class="navbar-nav ml-auto py-4 py-md-0">
+                    <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4 active">
+                      <a
+                        class="nav-link dropdown-toggle"
+                        data-toggle="dropdown"
+                        href="#"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        Home
+                      </a>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">
+                          Action
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          Another action
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          Something else here
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          Another action
+                        </a>
+                      </div>
+                    </li>
+                    <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                      <a class="nav-link" href="/marketplace">
+                        Marketplace
+                      </a>
+                    </li>
+                    <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                      <a class="nav-link" href="/mintNFT">
+                        Mint NFT
+                      </a>
+                    </li>
+                    <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                      <a class="nav-link" href="/mintNFT">
+                        Sell NFT
+                      </a>
+                    </li>
+                    {session.isLoggedIn ? (
+                      <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                        <a class="nav-link" href="#">
+                          {loggedInName}
+                        </a>
+                      </li>
+                    ) : (
+                      <li class="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                        <span
+                          class="nav-link"
+                          onClick={() => {
+                            // Get the Solid issuer the user should log into
+                            const issuer = prompt(
+                              "Enter your Solid Issuer",
+                              "https://solidweb.me"
+                              // "https://login.inrupt.com"
+                            );
+                            if (!issuer) return;
+                            login(issuer);
+                          }}
+                        >
+                          Log In
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* {session.isLoggedIn ? (
         // Is the session is logged in
         <div>
           <div>
@@ -90,7 +190,7 @@ export const Header = () => {
           </Button>
         </div>
       )}
-      <hr />
-    </header>
+      <hr /> */}
+    </div>
   );
 };

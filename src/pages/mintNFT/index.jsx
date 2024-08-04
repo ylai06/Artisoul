@@ -1,9 +1,11 @@
 import { useLdo, useResource, useSolidAuth } from "@ldo/solid-react";
 import { useEffect, useState, createContext, useContext } from "react";
 import { SetACL } from "../../components/setACL";
-import { SellNFT } from "../../components/sellNFT";
+import { Header } from "../../components/header";
+import { CreateNFT } from "../../components/createNFT";
 import { MyNFT } from "../../components/myNFT";
 import { PodContext } from "../..";
+import "./mintNFT.scss";
 
 const UploadImg = () => {
   const { session } = useSolidAuth();
@@ -40,16 +42,17 @@ const UploadImg = () => {
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
-  if (!session.isLoggedIn)
-    return <p>This part is for upload your digital asset. Log in first.</p>;
+  // if (!session.isLoggedIn)
+  //   return <p>This part is for upload your digital asset. Log in first.</p>;
 
-  if (isLoading) return <p>Loading...</p>;
+  // if (isLoading) return <p>Loading...</p>;
 
   return (
-    <main>
+    <div className="intro-box">
       <SetACL mainContainer={mainContainer} />
-      <MyNFT mainContainer={mainContainer} />
-    </main>
+      {/* <MyNFT mainContainer={mainContainer} /> */}
+      <CreateNFT mainContainer={mainContainer} />
+    </div>
   );
 };
 
@@ -65,8 +68,16 @@ function MintNFT() {
   }, [podLatestState]);
 
   return (
-    <div>
-      <h1>Mint NFT</h1>
+    <div className="webpage">
+      <Header />
+      <div className="intro-box">
+        <h1>Create your own NFT</h1>
+        <p>
+          *Before minting, you should allow the public to access your pod. Remind
+          you that this only allow public read access, while you retain full
+          access to your data.
+        </p>
+      </div>
       <UploadImg />
     </div>
   );

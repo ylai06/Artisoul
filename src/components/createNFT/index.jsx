@@ -3,12 +3,12 @@ import Marketplace from "../../contracts/Marketplace.json";
 import { useLocation } from "react-router";
 import { v4 } from "uuid";
 import "./sellNFT.scss";
-import { Button, Input } from "antd";
+import { Button, Input, Image } from "antd";
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 const { TextArea } = Input;
 
-export const SellNFT = ({ mainContainer }) => {
+export const CreateNFT = ({ mainContainer }) => {
   const [formParams, updateFormParams] = useState({
     name: "",
     description: "",
@@ -189,54 +189,71 @@ export const SellNFT = ({ mainContainer }) => {
   return (
     <div>
       <form>
-        <h2>Upload NFT to the marketplace</h2>
-        <div className="upload-box">
-          <Input
-            id="name"
-            type="text"
-            placeholder="NFT Name. ex:Axie#4563"
-            onChange={(e) =>
-              updateFormParams({ ...formParams, name: e.target.value })
-            }
-            value={formParams.name}
-          ></Input>
+        <h2>Create your NFT to the marketplace</h2>
+        <div className="metadata">
+          <div className="me-3 w-75">
+            <div className="upload-img-box">
+              <Input
+                className="upload-img"
+                type={"file"}
+                accept="image/*"
+                onChange={OnChangeFile}
+              ></Input>
+            </div>
+            <div className="upload-box w-25">
+              <Input
+                id="name"
+                type="text"
+                placeholder="NFT Name"
+                onChange={(e) =>
+                  updateFormParams({ ...formParams, name: e.target.value })
+                }
+                value={formParams.name}
+              ></Input>
+            </div>
+            <div className="upload-box">
+              <Input
+                type="number"
+                placeholder="Price for this NFT."
+                step="0.0001"
+                value={formParams.price}
+                onChange={(e) =>
+                  updateFormParams({ ...formParams, price: e.target.value })
+                }
+              ></Input>
+              <span>*Minium Price 0.0001 ETH</span>
+            </div>
+            <div className="upload-box">
+              <TextArea
+                autoSize={{ minRows: 3, maxRows: 5 }}
+                id="description"
+                type="text"
+                placeholder="Description. ex: Axie Infinity Collection"
+                value={formParams.description}
+                onChange={(e) =>
+                  updateFormParams({
+                    ...formParams,
+                    description: e.target.value,
+                  })
+                }
+              ></TextArea>
+            </div>
+          </div>
+          <div>{message}123</div>
+          <button
+            className="login-btn mt-4"
+            type="primary"
+            onClick={listNFT}
+            id="list-button"
+          >
+            Mint NFT
+          </button>
         </div>
-        <div className="upload-box">
-          <TextArea
-            autoSize={{ minRows: 3, maxRows: 5 }}
-            id="description"
-            type="text"
-            placeholder="Description. ex: Axie Infinity Collection"
-            value={formParams.description}
-            onChange={(e) =>
-              updateFormParams({ ...formParams, description: e.target.value })
-            }
-          ></TextArea>
-        </div>
-        <div className="upload-box">
-          <Input
-            type="number"
-            placeholder="Price. Min 0.0001 ETH"
-            step="0.0001"
-            value={formParams.price}
-            onChange={(e) =>
-              updateFormParams({ ...formParams, price: e.target.value })
-            }
-          ></Input>
-        </div>
-
-        <div>{message}</div>
-        <div className="upload-box">
-          <Input
-            className="upload-img"
-            type={"file"}
-            accept="image/*"
-            onChange={OnChangeFile}
-          ></Input>
-          <Button type="primary" onClick={listNFT} id="list-button">
-            List NFT
-          </Button>
-        </div>
+        <Image
+          width={200}
+          height={200}
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+        />
       </form>
     </div>
   );
