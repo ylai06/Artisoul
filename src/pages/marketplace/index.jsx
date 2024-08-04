@@ -157,23 +157,6 @@ const Market = () => {
           data.map((item, index) => {
             return (
               <div key={index}>
-                {/* <h2>{item.name}</h2>
-                <img src={item.image} alt={item.name} />
-                <p>{item.description}</p>
-                <strong>Token ID: </strong>
-                <span>{item.tokenId}</span>
-                <br />
-                <strong>Seller: </strong>
-                <span>{item.seller}</span>
-                <br />
-                <strong>Owner: </strong>
-                <span>{item.owner}</span>
-                <br />
-                <strong>Price: </strong>
-                <span>{item.price} ETH</span>
-                <br />
-                <strong>Metadata URI: </strong>
-                <span>{item.tokenURI}</span> */}
                 <NFTCard dataUri={item.tokenURI} token={item.tokenId} />
               </div>
             );

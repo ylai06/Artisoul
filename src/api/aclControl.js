@@ -4,6 +4,7 @@ import {
   deleteFile,
   deleteSolidDataset,
 } from "@inrupt/solid-client";
+import { useLdo, useResource, useSubject } from "@ldo/solid-react";
 
 export async function deleteRecursively(dataset, control) {
   const containedResourceUrls = getContainedResourceUrlAll(dataset);

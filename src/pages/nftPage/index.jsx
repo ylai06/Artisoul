@@ -1,16 +1,26 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Marketplace from "../../contracts/Marketplace.json";
-import { useLdo, useResource, useSubject } from "@ldo/solid-react";
+import {
+  useLdo,
+  useResource,
+  useSubject,
+  useSolidAuth,
+} from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { Button } from "antd";
+import { v4 } from "uuid";
 import "./style.scss";
 
 function NFTPage() {
+  const { session } = useSolidAuth();
+  const { getResource } = useLdo();
   const [data, setData] = useState({});
   const [dataFetched, setDataFetched] = useState(false);
   const [message, setMessage] = useState("");
   const [currAddress, setCurrAddress] = useState("0x");
+  const [fileContainer, setFileContainer] = useState(null);
+  const [fileURL, setFileURL] = useState(null);
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
 
@@ -43,37 +53,86 @@ function NFTPage() {
     setCurrAddress(addr);
   };
 
-  const buyNFT = async (tradeData) => {
-    try {
-      const ethers = require("ethers");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      let contract = new ethers.Contract(
-        Marketplace.address,
-        Marketplace.abi,
-        signer
-      );
-      console.log("contract: ", contract);
+  const transferNFT = async () => {
+    if (!session.webId) return;
+    const webIdResource = getResource(session.webId);
+    const rootContainerResult = await webIdResource.getRootContainer();
+    const mainContainer = rootContainerResult.child("my-solid-app/");
 
-      setMessage("Buying NFT..., please wait up to 5 minutes.");
+    // Create the main container if it doesn't exist yet
+    await mainContainer.createIfAbsent();
 
-      const ethPrice = ethers.parseUnits(tradeData.price, "ether");
+    const newNFTContainer = await mainContainer.createChildAndOverwrite(
+      `${v4()}/`
+    );
 
-      console.log("ethPrice", ethPrice);
-
-      let nftTxn = await contract.executeSale(tradeData.tokenId, {
-        value: ethPrice,
-      });
-      await nftTxn.wait();
-
-      console.log("contract details: ", nftTxn);
-      setMessage(
-        `You successfully bought the NFT! Check it out at: https://sepolia.etherscan.io/tx/${nftTxn.hash}`
-      );
-    } catch (e) {
-      console.error("Error buying NFT: ", e);
-      setMessage("Error buying NFT, ", e);
+    if (newNFTContainer.isError) {
+      alert(newNFTContainer.message);
+      return;
     }
+
+    const newNftContainer = newNFTContainer.resource;
+    setFileContainer(newNftContainer);
+
+    // try {
+    //   //upload the file to Buyer's Solid pod
+    //   console.log("Uploading image.. please don't click anything!");
+    //   const response = await newNftContainer.uploadChildAndOverwrite(
+    //     file.name,
+    //     file,
+    //     file.type
+    //   );
+
+    //   if (response.isError) {
+    //     console.log("Error: " + response.message);
+    //     await newNftContainer.delete();
+    //     return;
+    //   }
+
+    //   console.log(
+    //     "Uploaded image to your Solid pod success: ",
+    //     response.resource.uri
+    //   );
+    //   setFileURL(response.resource.uri);
+    //   // setUploadImg(response.resource);
+    // } catch (e) {
+    //   console.log("Error during file upload", e);
+    // }
+  };
+
+  const buyNFT = async (tradeData) => {
+    const uploadDate = new Date().toISOString();
+    console.log("tradeData: ", tradeData);
+    // try {
+    //   const ethers = require("ethers");
+    //   const provider = new ethers.BrowserProvider(window.ethereum);
+    //   const signer = await provider.getSigner();
+    //   let contract = new ethers.Contract(
+    //     Marketplace.address,
+    //     Marketplace.abi,
+    //     signer
+    //   );
+    //   console.log("contract: ", contract);
+
+    //   setMessage("Buying NFT..., please wait up to 5 minutes.");
+
+    //   const ethPrice = ethers.parseUnits(tradeData.price, "ether");
+
+    //   console.log("ethPrice", ethPrice);
+
+    //   let nftTxn = await contract.executeSale(tradeData.tokenId, {
+    //     value: ethPrice,
+    //   });
+    //   await nftTxn.wait();
+
+    //   console.log("contract details: ", nftTxn);
+    //   setMessage(
+    //     `You successfully bought the NFT! Check it out at: https://sepolia.etherscan.io/tx/${nftTxn.hash}`
+    //   );
+    // } catch (e) {
+    //   console.error("Error buying NFT: ", e);
+    //   setMessage("Error buying NFT, ", e);
+    // }
   };
 
   const MetaInfo = ({ dataUri, contractInfo, currAddress }) => {
@@ -81,6 +140,7 @@ function NFTPage() {
     const nftResource = useResource(nftIndexUri);
     const nft = useSubject(NFTShape, nftIndexUri);
     const imageResource = useResource(nft?.image?.["@id"]);
+    const imgUri = imageResource.uri;
 
     const blobUrl = useMemo(() => {
       if (imageResource && imageResource.isBinary()) {
@@ -96,6 +156,12 @@ function NFTPage() {
     const tradeData = {
       price: contractInfo.price,
       tokenId: contractInfo.tokenId,
+      title: nft.title,
+      description: nft.description,
+      creator: nft.creator,
+      fileName: imgUri.substring(imgUri.lastIndexOf("/") + 1),
+      fileType: imageResource.getBlob().type,
+      imgUri,
     };
 
     return (

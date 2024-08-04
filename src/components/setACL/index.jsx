@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useContext } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
 import { setWacRuleForAclUri, deleteResource, readResource } from "@ldo/solid";
@@ -23,7 +23,7 @@ import {
   getSolidDataset,
 } from "@inrupt/solid-client";
 import { deleteRecursively } from "../../api/aclControl";
-import "./makeNFT.scss";
+import "./setACL.scss";
 
 export const SetACL = ({ mainContainer }) => {
   const [message, setMessage] = useState("");
@@ -71,7 +71,7 @@ export const SetACL = ({ mainContainer }) => {
         read: true,
         append: true,
         write: true,
-        control: false,
+        control: true,
       });
       await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     }
@@ -99,7 +99,7 @@ export const SetACL = ({ mainContainer }) => {
       read: true,
       append: true,
       write: true,
-      control: false,
+      control: true,
     };
     updatedAcl = await setPublicDefaultAccess(resourceAcl, newRule);
     await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
@@ -200,9 +200,9 @@ export const SetACL = ({ mainContainer }) => {
       }
       // Get the created container
       const nftContainer = postContainerResult.resource;
-      console.log("nftContainer=>", nftContainer);
 
       console.log("selectedFile=>", selectedFile);
+      console.log("selectedFile.name=>", selectedFile.name);
       // Upload Image
       let uploadedImage;
       if (selectedFile) {
@@ -253,15 +253,19 @@ export const SetACL = ({ mainContainer }) => {
   );
 
   const deleteSource = [
-    "https://solidweb.me/User1/my-solid-app/8e248fb8-415b-412c-9156-cabea93a85c0/",
+    "",
     // <------ 這裡是要刪除的資料和資料夾
     // <------ 這裡是要刪除的資料夾
   ];
+
+  const buyerWebId = "https://solidweb.org/profile/card#me";
+  const buyNFTUri = "";
 
   useEffect(() => {
     if (deleteState) {
       if (!mainContainer) return;
       const res = mainContainer.children();
+      console.log("res=>", res);
       if (res) {
         res.forEach(async (child) => {
           if (deleteSource.includes(child.uri)) {
@@ -275,25 +279,26 @@ export const SetACL = ({ mainContainer }) => {
              */
             // console.log("child=>", child.uri);
             // delFolder = [...delFolder, child.uri];
-            let file = child.children();
-            console.log("file=>", file);
-            const dataset = await getSolidDataset(`${child.uri}`, {
-              fetch: fetch,
-            });
+            try {
+              let file = child.children();
+              const dataset = await getSolidDataset(`${child.uri}`, {
+                fetch: fetch,
+              });
 
-            // delete index.ttl and image in the folder
-            deleteRecursively(dataset, {
-              fetch: fetch,
-            });
-
-            // delete the folder
-            // try {
-            //   await deleteResource(child.uri);
-            //   console.log("delFolder=>", child.uri);
-            // } catch (err) {
-            //   console.log("delFolderError=>", err);
-            //   return;
-            // }
+              // delete index.ttl and image in the folder
+              deleteRecursively(dataset, {
+                fetch: fetch,
+              });
+            } catch (e) {
+              // delete the folder
+              try {
+                await deleteResource(child.uri);
+                console.log("delFolder=>", child.uri);
+              } catch (err) {
+                console.log("delFolderError=>", err);
+                return;
+              }
+            }
           }
         });
       }
@@ -304,17 +309,21 @@ export const SetACL = ({ mainContainer }) => {
   return (
     <div>
       <h2>Set ACL</h2>
-      <Button className="btn" onClick={onGetPublic}>
+      <Button type="primary" className="btn" onClick={onGetPublic}>
         Get Public ACL
       </Button>
-      <Button className="btn" onClick={onSetPublic}>
+      <Button type="primary" className="btn" onClick={onSetPublic}>
         Set Public ACL
       </Button>
-      <Button className="btn" onClick={onSetResourcePublic}>
+      <Button type="primary" className="btn" onClick={onSetResourcePublic}>
         Set Child Resource ACL
       </Button>
       <br />
-      <Button className="btn" onClick={() => setDeleteState(true)}>
+      <Button
+        type="primary"
+        className="btn"
+        onClick={() => setDeleteState(true)}
+      >
         Delete problematic resources
       </Button>
       {/* <Button className="btn" onClick={onDelete}>

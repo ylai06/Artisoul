@@ -3,8 +3,8 @@ import Marketplace from "../../contracts/Marketplace.json";
 import { useLocation } from "react-router";
 import { v4 } from "uuid";
 import "./sellNFT.scss";
-import { Button, Input, Image } from "antd";
-import { useSolidAuth, useLdo } from "@ldo/solid-react";
+import { Input, Image } from "antd";
+import { useLdo } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 const { TextArea } = Input;
 
@@ -46,8 +46,6 @@ export const CreateNFT = ({ mainContainer }) => {
       `${v4()}/`
     );
 
-    console.log("postContainerResult=>", postContainerResult);
-
     if (postContainerResult.isError) {
       alert(postContainerResult.message);
       return;
@@ -59,9 +57,9 @@ export const CreateNFT = ({ mainContainer }) => {
 
     // check for file extension
     try {
-      //upload the file to IPFS
+      //upload the file to Solid pod
       disableButton();
-      updateMessage("Uploading image.. please dont click anything!");
+      updateMessage("Uploading image.. please don't click anything!");
       const response = await nftContainer.uploadChildAndOverwrite(
         file.name,
         file,
@@ -183,8 +181,6 @@ export const CreateNFT = ({ mainContainer }) => {
       updateFormParams({ name: "", description: "", price: "" });
     }
   }
-
-  // useEffect(() => {}, [uploadImg]);
 
   return (
     <div>
