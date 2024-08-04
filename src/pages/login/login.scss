@@ -1,12 +1,78 @@
-.P-login {
+.p-login {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 100%;
-  background: #7adbcb;
-  .ipt-con {
-    margin: 20px auto;
-    width: 400px;
-    text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+  .img-box {
+    background-color: #858584;
+    width: 500px;
+    height: 450px;
+  }
+  .login-txt {
+    width: 350px;
+    height: fit-content;
+    display: flex;
+    padding-top: 50px;
+    flex-direction: column;
+    justify-content: start;
+    align-items: flex-start;
+    gap: 40px;
+    .text-start {
+      font-size: 18px;
+      line-height: 26px;
+    }
+    h1 {
+      text-align: start;
+      margin: 0;
+    }
+    button {
+      margin: 1.2rem 0;
+    }
+    .solid-link {
+      text-decoration: underline;
+    }
+  }
+  .login-id {
+    // width: 350px;
+    padding: 35px 0;
+    .web-id {
+      display: flex;
+      width: 245px;
+      height: 46px;
+      padding: 16px 20px;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      align-self: stretch;
+      border-radius: 20px;
+      border: 1px solid var(--caption-label-text, #858584);
+      background: var(--Text, #fff);
+    }
+  }
+
+  .wallet-option {
+    margin-top: 30px;
+    margin-right: 20px;
+    padding-right: 30px;
+    display: flex;
+    height: 72px;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    align-self: stretch;
+    border-radius: 20px;
+    border: 1px solid var(--Call-to-Action, #953f98);
+    background: var(--Background---Secondary, #4b3f48);
+    font-size: 20px;
+  }
+  .wallet-option:hover {
+    cursor: pointer;
+  }
+  .icon-wallet {
+    width: 50px;
+    height: 50px;
   }
 }

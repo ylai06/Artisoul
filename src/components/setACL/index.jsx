@@ -330,27 +330,14 @@ export const SetACL = ({ mainContainer }) => {
       <Button className="btn" onClick={onSetAgent}>
         Set Agent ACL
       </Button> */}
-      <h2>Upload NFT</h2>
+      
+      {/* <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
           <Input
             className="des-nft"
             type="text"
             placeholder="Name of the artwork"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Input
-            className="des-nft"
-            type="text"
-            placeholder="Creator/Owner (User Address)"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Input
-            className="des-nft"
-            type="text"
-            placeholder="Descriptions"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
@@ -364,7 +351,7 @@ export const SetACL = ({ mainContainer }) => {
         <Button type="primary" onClick={onSubmit}>
           Upload
         </Button>
-      </form>
+      </form> */}
     </div>
   );
 };

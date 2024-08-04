@@ -1,0 +1,30 @@
+
+.metadata {
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-box {
+  margin-bottom: 10px;
+  input {
+    border-radius: 20px;
+    display: inline;
+  }
+  span {
+    font-size: 14px;
+  }
+  textArea {
+    border-radius: 20px;
+  }
+}
+
+.upload-img-box {
+  background-color: transparent;
+  margin-bottom: 10px;
+}
+
+.upload-img {
+  border: 0;
+  width: 200px;
+  display: inline;
+}

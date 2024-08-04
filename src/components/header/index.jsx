@@ -47,14 +47,13 @@ export const Header = () => {
   }
 
   return (
-    <body className="hero-anime">
+    <div className="hero-anime">
       <div class="navigation-wrap bg-light start-header start-style">
         <div class="">
           <div class="row">
             <div class="col-12">
               <nav class="navbar navbar-expand-md navbar-light">
                 <a class="navbar-brand" href="#" target="_blank">
-                  {/* <img src="https://assets.codepen.io/1462889/fcy.png" alt="" /> */}
                   ArtiSoul
                 </a>
                 <button
@@ -148,10 +147,6 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* <a href="https://front.codes/" class="logo" target="_blank">
-        <img src="https://assets.codepen.io/1462889/fcy.png" alt="" />
-      </a> */}
-
       {/* {session.isLoggedIn ? (
         // Is the session is logged in
         <div>
@@ -196,6 +191,6 @@ export const Header = () => {
         </div>
       )}
       <hr /> */}
-    </body>
+    </div>
   );
 };

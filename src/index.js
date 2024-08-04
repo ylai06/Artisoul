@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import { globalRouters } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";
 import "bootstrap/dist/css/bootstrap.css";
+import "./common/styles/frame.scss";
 
 export const WalletContext = createContext(null);
 export const PodContext = createContext();
@@ -20,7 +21,7 @@ const AppWrapper = () => {
     <BrowserSolidLdoProvider>
       <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
         <PodContext.Provider value={{ podLatestState, setPodLatestState }}>
-          <RouterProvider router={globalRouters} />
+          <RouterProvider router={globalRouters}></RouterProvider>
         </PodContext.Provider>
       </WalletContext.Provider>
     </BrowserSolidLdoProvider>
