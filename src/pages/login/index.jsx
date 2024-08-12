@@ -1,11 +1,7 @@
 import { Button, Input, message, theme } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSolidAuth } from "@ldo/solid-react";
-import {
-  getWacUri,
-  getWacRuleWithAclUri,
-  setWacRuleForAclUri,
-} from "@ldo/solid";
+import { getWacUri, getWacRuleWithAclUri } from "@ldo/solid";
 import {
   getSolidDatasetWithAcl,
   getPublicAccess,
@@ -23,6 +19,7 @@ import {
   getResourceAcl,
   getSolidDataset,
 } from "@inrupt/solid-client";
+import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
 import { Link } from "react-router-dom";
 import "./login.scss";
 import { use } from "chai";
@@ -114,7 +111,7 @@ function Login() {
   ];
 
   const podUri =
-    "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/";
+    "https://solidweb.me/NFT-asset/my-solid-app/47d9896a-9f26-4c6a-812f-6f2e6c379b2b/";
 
   const userSetACL = async () => {
     const acl = {
@@ -122,14 +119,15 @@ function Login() {
       write: ACL.write,
       append: ACL.append,
       control: ACL.control,
-      origin: ACL.origin,
     };
-    console.log("aclRule=>", acl);
+    console.log("aclRule=>", acl, ACL.origin);
 
     const res = await getWacUri(podUri);
     if (!res.isError) {
       console.log("wacUri=>", res.wacUri);
     }
+
+    const aclUri = res.wacUri;
 
     // const res1 = await getWacRuleWithAclUri(res.wacUri, { fetch: fetch });
     // if (!res1.isError) {
@@ -141,26 +139,63 @@ function Login() {
       fetch: fetch,
     });
     console.log("datasetWithAcl=>", datasetWithAcl);
+    // const publicAccess = getPublicAccess(datasetWithAcl);
+    // console.log("public Access=>", publicAccess);
+
+    // let resourceAcl = getResourceAcl(datasetWithAcl);
+    // console.log("resourceAcl ori=>", resourceAcl);
+    // if (!resourceAcl) {
+    //   resourceAcl = createAcl(datasetWithAcl);
+    //   console.log("resourceAcl new=>", resourceAcl);
+    // }
+    // const updatedAcl = setPublicResourceAccess(resourceAcl, {
+    //   read: true,
+    //   append: false,
+    //   write: false,
+    //   control: false,
+    // });
+    // console.log("updatedAcl=>", updatedAcl);
+    // await saveAclFor(datasetWithAcl, updatedAcl, { fetch: fetch });
+
+    // const agentAccess = getAgentAccess(datasetWithAcl);
+    // const agentWebId = "https://solidweb.me/test-access1/profile/card#me";
+    // console.log("agent Access=>", agentAccess);
+    // const updatedAcl = setAgentResourceAccess(resourceAcl, agentWebId, {
+    //   read: true,
+    //   append: true,
+    //   write: true,
+    //   control: true,
+    // });
+    // console.log("updatedAcl=>", updatedAcl);
+    // await saveAclFor(datasetWithAcl, updatedAcl, { fetch: fetch });
+
+    const aclAccess = await setWacRuleForAclUriWithOri(
+      aclUri, // /.acl
+      {
+        // public: {
+        //   read: ACL.read,
+        //   append: ACL.append,
+        //   write: ACL.write,
+        //   control: ACL.control,
+        // },
+        authenticated: {
+          read: true,
+          append: true,
+          write: true,
+          control: true,
+        },
+      },
+      podUri,
+      ACL.origin,
+      { fetch: fetch }
+    );
+    console.log("aclAccess=>", aclAccess);
+
     const publicAccess = getPublicAccess(datasetWithAcl);
     console.log("public Access=>", publicAccess);
 
     let resourceAcl = getResourceAcl(datasetWithAcl);
     console.log("resourceAcl ori=>", resourceAcl);
-    if (!resourceAcl) {
-      resourceAcl = createAcl(datasetWithAcl);
-      console.log("resourceAcl new=>", resourceAcl);
-    }
-    const updatedAcl = setPublicResourceAccess(resourceAcl, {
-      read: true,
-      append: false,
-      write: false,
-      control: false,
-    });
-    console.log("updatedAcl=>", updatedAcl);
-    await saveAclFor(datasetWithAcl, updatedAcl, { fetch: fetch });
-
-    // const agentAccess = getAgentAccess(datasetWithAcl);
-    // console.log("agent Access=>", agentAccess);
   };
 
   return (
