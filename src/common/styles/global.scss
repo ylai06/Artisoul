@@ -102,3 +102,11 @@ a {
 .webpage {
   margin-top: 150px;
 }
+
+input[type="checkbox"] {
+  -webkit-appearance: checkbox;
+}
+
+input[type="radio"] {
+  -webkit-appearance: radio;
+}

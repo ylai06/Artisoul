@@ -319,7 +319,7 @@ module.exports = function (webpackEnv) {
           "react-dom$": "react-dom/profiling",
           "scheduler/tracing": "scheduler/tracing-profiling",
         }),
-        '@artifacts': path.resolve(__dirname, '../artifacts/contracts'),
+        "@artifacts": path.resolve(__dirname, "../artifacts/contracts"),
         ...(modules.webpackAliases || {}),
       },
       plugins: [

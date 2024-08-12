@@ -1,13 +1,57 @@
 import { Button, Input, message, theme } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSolidAuth } from "@ldo/solid-react";
+import {
+  getWacUri,
+  getWacRuleWithAclUri,
+  setWacRuleForAclUri,
+} from "@ldo/solid";
+import {
+  getSolidDatasetWithAcl,
+  getPublicAccess,
+  setPublicDefaultAccess,
+  setPublicResourceAccess,
+  createAcl,
+  getAgentAccess,
+  setAgentResourceAccess,
+  setAgentDefaultAccess,
+  saveAclFor,
+  hasResourceAcl,
+  hasFallbackAcl,
+  hasAccessibleAcl,
+  createAclFromFallbackAcl,
+  getResourceAcl,
+  getSolidDataset,
+} from "@inrupt/solid-client";
 import { Link } from "react-router-dom";
 import "./login.scss";
+import { use } from "chai";
+
+const Checkbox = ({ label, value, onChange }) => {
+  return (
+    <label style={{ display: "block" }}>
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={onChange}
+        className="aclCheck"
+      />
+      {label}
+    </label>
+  );
+};
 
 function Login() {
-  const { session } = useSolidAuth();
+  const { session, fetch } = useSolidAuth();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
+  const [ACL, setACL] = React.useState({
+    read: false,
+    write: false,
+    append: false,
+    control: false,
+    origin: "",
+  });
   const nextStep = () => {
     setCurrent(current + 1);
   };
@@ -68,9 +112,60 @@ function Login() {
       btn: <Link to="/marketplace">Marketplace</Link>,
     },
   ];
+
+  const podUri =
+    "https://solidweb.me/NFT-asset/my-solid-app/a7f60ad3-691c-45af-89f9-d495b8dace26/";
+
+  const userSetACL = async () => {
+    const acl = {
+      read: ACL.read,
+      write: ACL.write,
+      append: ACL.append,
+      control: ACL.control,
+      origin: ACL.origin,
+    };
+    console.log("aclRule=>", acl);
+
+    const res = await getWacUri(podUri);
+    if (!res.isError) {
+      console.log("wacUri=>", res.wacUri);
+    }
+
+    // const res1 = await getWacRuleWithAclUri(res.wacUri, { fetch: fetch });
+    // if (!res1.isError) {
+    //   console.log("wacRule=>", res1);
+    // }
+
+    const containerUrl = podUri;
+    const datasetWithAcl = await getSolidDatasetWithAcl(containerUrl, {
+      fetch: fetch,
+    });
+    console.log("datasetWithAcl=>", datasetWithAcl);
+    const publicAccess = getPublicAccess(datasetWithAcl);
+    console.log("public Access=>", publicAccess);
+
+    let resourceAcl = getResourceAcl(datasetWithAcl);
+    console.log("resourceAcl ori=>", resourceAcl);
+    if (!resourceAcl) {
+      resourceAcl = createAcl(datasetWithAcl);
+      console.log("resourceAcl new=>", resourceAcl);
+    }
+    const updatedAcl = setPublicResourceAccess(resourceAcl, {
+      read: true,
+      append: false,
+      write: false,
+      control: false,
+    });
+    console.log("updatedAcl=>", updatedAcl);
+    await saveAclFor(datasetWithAcl, updatedAcl, { fetch: fetch });
+
+    // const agentAccess = getAgentAccess(datasetWithAcl);
+    // console.log("agent Access=>", agentAccess);
+  };
+
   return (
     <div className="p-login">
-      {session.isLoggedIn ? (
+      {/* {session.isLoggedIn ? (
         <Link to="/marketplace">
           <button className="login-btn">NFT Marketplace</button>
         </Link>
@@ -122,7 +217,58 @@ function Login() {
             )}
           </div>
         </div>
-      )}
+      )} */}
+      <div className="test">
+        <div className="testACL">
+          <h2>Set ACL access and origin</h2>
+          <form id="aclForm">
+            <Checkbox
+              label="Read"
+              value={ACL.read}
+              onChange={() => setACL({ ...ACL, read: !ACL.read })}
+            />
+            <Checkbox
+              label="Write"
+              value={ACL.write}
+              onChange={() => setACL({ ...ACL, write: !ACL.write })}
+            />
+            <Checkbox
+              label="Append"
+              value={ACL.append}
+              onChange={() => setACL({ ...ACL, append: !ACL.append })}
+            />
+            <Checkbox
+              label="Control"
+              value={ACL.control}
+              onChange={() => setACL({ ...ACL, control: !ACL.control })}
+            />
+
+            <div>
+              <label for="origin">ACL Origin:</label>
+              <Input
+                type="text"
+                id="origin"
+                name="origin"
+                placeholder="Enter ACL origin"
+                value={setACL.origin}
+                onChange={(e) => setACL({ ...ACL, origin: e.target.value })}
+              />
+            </div>
+
+            <div className="btn-box">
+              <Button
+                id="setAclBtn"
+                onClick={() => {
+                  userSetACL();
+                }}
+              >
+                Submit
+              </Button>
+              <Button id="getAclBtn">View ACL file</Button>
+            </div>
+          </form>
+        </div>
+      </div>
       {/* <div className="img-box"></div>
       <div>
         <div className="login-txt">

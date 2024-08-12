@@ -76,3 +76,21 @@
     height: 50px;
   }
 }
+
+.test {
+  .testACL {
+    #aclForm {
+    }
+    .btn-box {
+      display: flex;
+      button {
+        margin: 10px;
+        width: fit-content;
+      }
+    }
+    .aclCheck {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}

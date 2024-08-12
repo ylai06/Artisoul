@@ -40,6 +40,9 @@ function Home() {
                 <button className="login-btn">Get Started</button>
               </Link>
             )}
+            <Link to="/login">
+              <button className="login-btn">Get Started</button>
+            </Link>
           </div>
           <Card
             cover={
