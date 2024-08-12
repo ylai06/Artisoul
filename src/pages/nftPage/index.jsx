@@ -14,7 +14,7 @@ import "./style.scss";
 
 function NFTPage() {
   const { session } = useSolidAuth();
-  const { getResource } = useLdo();
+  const { getResource, createData, commitData } = useLdo();
   const [data, setData] = useState({});
   const [dataFetched, setDataFetched] = useState(false);
   const [message, setMessage] = useState("");
@@ -53,11 +53,17 @@ function NFTPage() {
     setCurrAddress(addr);
   };
 
-  const transferNFT = async () => {
+  const transferNFT = async (data) => {
     if (!session.webId) return;
     const webIdResource = getResource(session.webId);
     const rootContainerResult = await webIdResource.getRootContainer();
     const mainContainer = rootContainerResult.child("my-solid-app/");
+
+    const file = new File([data.blob], data.fileName, {
+      type: data.filetype,
+      lastModified: Date.now(),
+    });
+    console.log("file:", file);
 
     // Create the main container if it doesn't exist yet
     await mainContainer.createIfAbsent();
@@ -73,36 +79,65 @@ function NFTPage() {
 
     const newNftContainer = newNFTContainer.resource;
     setFileContainer(newNftContainer);
+    let assetUri = "";
 
-    // try {
-    //   //upload the file to Buyer's Solid pod
-    //   console.log("Uploading image.. please don't click anything!");
-    //   const response = await newNftContainer.uploadChildAndOverwrite(
-    //     file.name,
-    //     file,
-    //     file.type
-    //   );
+    try {
+      //upload the file to Buyer's Solid pod
+      console.log("Uploading image.. please don't click anything!");
+      const response = await newNftContainer.uploadChildAndOverwrite(
+        file.name,
+        file,
+        file.type
+      );
 
-    //   if (response.isError) {
-    //     console.log("Error: " + response.message);
-    //     await newNftContainer.delete();
-    //     return;
-    //   }
+      if (response.isError) {
+        console.log("Error: " + response.message);
+        await newNftContainer.delete();
+        return;
+      }
 
-    //   console.log(
-    //     "Uploaded image to your Solid pod success: ",
-    //     response.resource.uri
-    //   );
-    //   setFileURL(response.resource.uri);
-    //   // setUploadImg(response.resource);
-    // } catch (e) {
-    //   console.log("Error during file upload", e);
-    // }
+      assetUri = response.resource.uri;
+
+      console.log(
+        "Uploaded image to your Solid pod success: ",
+        response.resource.uri
+      );
+      setFileURL(response.resource.uri);
+      // setUploadImg(response.resource);
+    } catch (e) {
+      console.log("Error during file upload", e);
+    }
+
+    const metadata = newNftContainer.child(`index.ttl`);
+
+    const nft_metadata = createData(NFTShape, metadata.uri, metadata);
+    nft_metadata.description = data.description;
+    nft_metadata.image = { "@id": assetUri };
+    nft_metadata.title = data.title;
+    nft_metadata.creator = data.creator;
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    nft_metadata.owner = signer.address;
+    nft_metadata.uploadDate = new Date().toISOString();
+
+    const result = await commitData(nft_metadata);
+    if (result.isError) {
+      alert(result.message);
+      return;
+    }
+    console.log(newNftContainer.uri, "; Transfer NFT Metadata: ", result);
+    return newNftContainer.uri;
   };
 
-  const buyNFT = async (tradeData) => {
+  const buyNFT = async (data) => {
     const uploadDate = new Date().toISOString();
-    console.log("tradeData: ", tradeData);
+    const newDataUri = transferNFT(data);
+    // 1. 交易，更新 NFT 的 metadata
+    // 2. 成功後，刪除原本的 NFT metadata container
+    // 同時更新 Marketplace pod 中的 NFT 資料
+    // 3. 如失敗，刪除新的 NFT metadata container
+
     // try {
     //   const ethers = require("ethers");
     //   const provider = new ethers.BrowserProvider(window.ethereum);
@@ -160,7 +195,8 @@ function NFTPage() {
       description: nft.description,
       creator: nft.creator,
       fileName: imgUri.substring(imgUri.lastIndexOf("/") + 1),
-      fileType: imageResource.getBlob().type,
+      blob: imageResource.getBlob(),
+      filetype: imageResource.getBlob().type,
       imgUri,
     };
 

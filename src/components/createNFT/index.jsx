@@ -96,15 +96,6 @@ export const CreateNFT = ({ mainContainer }) => {
     const metadata = fileContainer.child(`index.ttl`);
     const nft_metadata = createData(NFTShape, metadata.uri, metadata);
 
-    const nftJSON = {
-      name,
-      description,
-      price,
-      image: fileURL,
-    };
-
-    console.log("NFT JSON: ", nftJSON);
-
     nft_metadata.description = description;
     nft_metadata.image = { "@id": fileURL };
     nft_metadata.title = name;
