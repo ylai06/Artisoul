@@ -124,7 +124,8 @@
     "@types/jsonld": "^1.5.15",
     "@types/shexj": "^2.1.7",
     "hardhat": "^2.22.6",
-    "hardhat-deploy": "^0.12.4"
+    "hardhat-deploy": "^0.12.4",
+    "webpack-cli": "^5.1.4"
   },
   "jest": {
     "roots": [
