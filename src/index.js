@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./common/styles/frame.scss";
 
 export const WalletContext = createContext(null);
+export const AuthContext = createContext(null);
 
 const AppWrapper = () => {
   const [walletDetails, setWalletDetails] = useState({
@@ -15,11 +16,16 @@ const AppWrapper = () => {
     walletName: "",
     walletBalance: 0,
   });
+
+  const [authSession, setAuthSession] = useState(false);
+
   return (
     <BrowserSolidLdoProvider>
-      <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
-        <RouterProvider router={globalRouters}></RouterProvider>
-      </WalletContext.Provider>
+      <AuthContext.Provider value={{ authSession, setAuthSession }}>
+        <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
+          <RouterProvider router={globalRouters}></RouterProvider>
+        </WalletContext.Provider>
+      </AuthContext.Provider>
     </BrowserSolidLdoProvider>
   );
 };

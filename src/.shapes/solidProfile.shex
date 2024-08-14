@@ -53,6 +53,12 @@ srs:SolidProfileShape EXTRA a {
     // rdfs:comment  "A registry of all types used on the user's Pod (for public access)" ;
   foaf:knows IRI *
     // rdfs:comment  "A list of WebIds for all the people this user knows." ;
+  schem:email xsd:string ?
+  // rdfs:comment  "The user's birthday" ;
+  schem:birthDate xsd:string ?
+    // rdfs:comment  "The user's birthday" ;
+  schem:bio xsd:string ?
+    // rdfs:comment  "A short biography or description about the user" ;
 }
 
 srs:AddressShape {

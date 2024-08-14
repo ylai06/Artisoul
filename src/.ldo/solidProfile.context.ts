@@ -151,4 +151,16 @@ export const solidProfileContext: ContextDefinition = {
     "@type": "@id",
     "@container": "@set",
   },
+  email: {
+    "@id": "http://schema.org/email",
+    "@type": "http://www.w3.org/2001/XMLSchema#string",
+  },
+  birthDate: {
+    "@id": "http://schema.org/birthDate",
+    "@type": "http://www.w3.org/2001/XMLSchema#string",
+  },
+  bio: {
+    "@id": "http://schema.org/bio",
+    "@type": "http://www.w3.org/2001/XMLSchema#string",
+  },
 };

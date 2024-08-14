@@ -410,6 +410,63 @@ export const solidProfileSchema: Schema = {
                 },
               ],
             },
+            {
+              type: "TripleConstraint",
+              predicate: "http://schema.org/email",
+              valueExpr: {
+                type: "NodeConstraint",
+                datatype: "http://www.w3.org/2001/XMLSchema#string",
+              },
+              min: 0,
+              max: 1,
+              annotations: [
+                {
+                  type: "Annotation",
+                  predicate: "http://www.w3.org/2000/01/rdf-schema#comment",
+                  object: {
+                    value: "The user's birthday",
+                  },
+                },
+              ],
+            },
+            {
+              type: "TripleConstraint",
+              predicate: "http://schema.org/birthDate",
+              valueExpr: {
+                type: "NodeConstraint",
+                datatype: "http://www.w3.org/2001/XMLSchema#string",
+              },
+              min: 0,
+              max: 1,
+              annotations: [
+                {
+                  type: "Annotation",
+                  predicate: "http://www.w3.org/2000/01/rdf-schema#comment",
+                  object: {
+                    value: "The user's birthday",
+                  },
+                },
+              ],
+            },
+            {
+              type: "TripleConstraint",
+              predicate: "http://schema.org/bio",
+              valueExpr: {
+                type: "NodeConstraint",
+                datatype: "http://www.w3.org/2001/XMLSchema#string",
+              },
+              min: 0,
+              max: 1,
+              annotations: [
+                {
+                  type: "Annotation",
+                  predicate: "http://www.w3.org/2000/01/rdf-schema#comment",
+                  object: {
+                    value: "A short biography or description about the user",
+                  },
+                },
+              ],
+            },
           ],
         },
         extra: ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"],

@@ -1,6 +1,7 @@
 import { Button, Avatar, Card } from "antd";
 import { useSolidAuth } from "@ldo/solid-react";
 import { Header } from "../../components/header";
+import deer from "../../img/nft/deer.png";
 import { Link } from "react-router-dom";
 import "./home.scss";
 
@@ -24,7 +25,7 @@ function Home() {
         )}
         <div className="panel">
           <div className="intro-txt">
-            <h1>Discover digital art & Collect NFTs</h1>
+            <h1>Discover Digital Art & Collect NFTs</h1>
             <p className="text-start">
               Experience the true freedom of trading NFTs where transparency
               meets trust, and creativity flourishes in a user-centric
@@ -40,19 +41,8 @@ function Home() {
                 <button className="login-btn">Get Started</button>
               </Link>
             )}
-            <Link to="/login">
-              <button className="login-btn">Get Started</button>
-            </Link>
           </div>
-          <Card
-            cover={
-              <img
-                alt="example"
-                src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-              />
-            }
-            className="exampleNFT"
-          >
+          <Card cover={<img alt="example" src={deer} />} className="exampleNFT">
             <div className="title">
               <h4>Space Walking</h4>
             </div>

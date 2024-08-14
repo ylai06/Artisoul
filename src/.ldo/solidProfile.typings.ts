@@ -115,6 +115,18 @@ export interface SolidProfileShape {
   knows?: {
     "@id": string;
   }[];
+  /**
+   * The user's birthday
+   */
+  email?: string;
+  /**
+   * The user's birthday
+   */
+  birthDate?: string;
+  /**
+   * A short biography or description about the user
+   */
+  bio?: string;
 }
 
 /**

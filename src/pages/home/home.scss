@@ -29,16 +29,27 @@
     }
     .exampleNFT {
       margin: 0 25px;
-      width: 400px;
+      width: 350px;
       height: fit-content;
       color: #fff;
       border: none;
       border-radius: 20px;
       background: var(--Background---Secondary, #432b4d);
       box-shadow: 5px 10px 10px 0px rgba(0, 0, 0, 0.25);
+      .ant-card-cover {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffffbf;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        height: 300px;
+      }
       img {
-        width: 100%;
-        height: 310px;
+        width: 250px;
+        height: 250px;
         margin: 0;
       }
       .creator {

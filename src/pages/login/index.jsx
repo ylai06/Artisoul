@@ -1,5 +1,5 @@
 import { Button, Input, message, theme } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSolidAuth } from "@ldo/solid-react";
 import { getWacUri, getWacRuleWithAclUri } from "@ldo/solid";
 import {
@@ -20,9 +20,10 @@ import {
   getSolidDataset,
 } from "@inrupt/solid-client";
 import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { ethers } from "ethers";
+import { WalletContext, AuthContext } from "../../index";
 import "./login.scss";
-import { use } from "chai";
 
 const Checkbox = ({ label, value, onChange }) => {
   return (
@@ -39,9 +40,13 @@ const Checkbox = ({ label, value, onChange }) => {
 };
 
 function Login() {
-  const { session, fetch } = useSolidAuth();
+  const { session, login, fetch } = useSolidAuth();
   const { token } = theme.useToken();
+  const [connected, setConnected] = useState(false); // connect to wallet
+  const { walletDetails, setWalletDetails } = useContext(WalletContext);
+  const { authSession, setAuthSession } = useContext(AuthContext);
   const [current, setCurrent] = useState(0);
+  const [messageApi, contextHolder] = message.useMessage();
   const [ACL, setACL] = React.useState({
     read: false,
     write: false,
@@ -49,19 +54,86 @@ function Login() {
     control: false,
     origin: "",
   });
+
+  const errorMsg = (msg) => {
+    messageApi.open({
+      type: "error",
+      content: msg,
+    });
+  };
+
+  const successMsg = (msg) => {
+    messageApi.open({
+      type: "success",
+      content: msg,
+    });
+  };
+
   const nextStep = () => {
     setCurrent(current + 1);
   };
   const prev = () => {
     setCurrent(current - 1);
   };
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum === "undefined") {
+      errorMsg("Please install MetaMask first.");
+      return;
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const _walletAddress = await signer.getAddress();
+      const weiBalance = await provider.getBalance(_walletAddress);
+      const _walletBalance = ethers.formatEther(weiBalance);
+      setWalletDetails({
+        walletAddress: _walletAddress,
+        walletBalance: _walletBalance,
+      });
+      setConnected(!connected);
+    } catch (error) {
+      errorMsg("Connect wallet failed! " + error.reason);
+    }
+
+    // const provider = new ethers.BrowserProvider(window.ethereum);
+    // if (!connected) {
+    //   // Connect the wallet using ethers.js
+    //   const signer = await provider.getSigner();
+    //   const _walletAddress = await signer.getAddress();
+    //   const weiBalance = await provider.getBalance(_walletAddress);
+    //   const _walletBalance = ethers.formatEther(weiBalance);
+    //   setWalletDetails({
+    //     walletAddress: _walletAddress,
+    //     walletBalance: _walletBalance,
+    //   });
+    //   setConnected(true);
+    // } else {
+    //   console.log("disconnectWallet");
+    //   // Disconnect the wallet
+    //   const account = await provider.send("eth_requestAccounts", []);
+    //   if (account.length > 0) {
+    // messageApi.info(
+    //   `To fully disconnect account:${account}, please open MetaMask, click on the connected site indicator, and select "Disconnect".`
+    // );
+    //   } else {
+    //     setConnected(false);
+    //     setWalletDetails({
+    //       walletAddress: "",
+    //       walletBalance: 0,
+    //     });
+    //   }
+    // }
+  };
+
   const steps = [
     {
-      title: "Login with your Solid Pod",
-      img: "",
+      title: "Login with your WebId",
+      img: require("../../img/nft/jellyfish.png"),
       content: (
-        <p>
-          Welcome! You can login your account by authorized with your Solid POD
+        <span>
+          👋 Please login to your account by authorized with your Solid POD
           using your webId. If you don't have one, learn how to get started at{" "}
           <a
             className="solid-link"
@@ -70,14 +142,44 @@ function Login() {
           >
             solidproject.org
           </a>
-          ."
-        </p>
+          .
+        </span>
       ),
-      btn: "Login",
+      btnCnt: (
+        <div className="pod-div">
+          <input
+            type="text"
+            id="url"
+            defaultValue="https://solidweb.me"
+            size="50"
+            className="pod-url"
+          />
+          <button
+            onClick={async (e) => {
+              e.preventDefault();
+              const issuer = document.getElementById("url").value;
+              if (!issuer) return;
+              try {
+                // 假設 login 是一個異步函數
+                await login(issuer);
+              } catch (error) {
+                errorMsg("Login failed!");
+              }
+            }}
+          >
+            <img
+              src="https://solidproject.org/image/logo.svg"
+              alt="MetaMask"
+              className="me-2 pod-logo"
+            />
+            Connect
+          </button>
+        </div>
+      ),
     },
     {
       title: "Next Steps",
-      img: "",
+      img: require("../../img/nft/pinkalpaca.png"),
       content: (
         <div>
           ✨ Connect your wallet, create your NFT, and dive into the exciting
@@ -86,10 +188,10 @@ function Login() {
         </div>
       ),
       btnCnt: (
-        <div className="wallet-option">
+        <div className="wallet-option" onClick={connectWallet}>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
-            alt=""
+            alt="MetaMask"
             className="icon-wallet"
           />
           Metamask
@@ -98,7 +200,7 @@ function Login() {
     },
     {
       title: "Welcome! Now you can...",
-      img: "",
+      img: require("../../img/nft/avocado.png"),
       content: (
         <div>
           <h4>🚀 Create Your Own NFT</h4>
@@ -106,7 +208,18 @@ function Login() {
           <h4>🎨 Collect NFTs</h4>
         </div>
       ),
-      btn: <Link to="/marketplace">Marketplace</Link>,
+      btn: (
+        <Link to="/">
+          <span
+            onClick={() => {
+              console.log("Home", session.isLoggedIn);
+              setAuthSession(session.isLoggedIn);
+            }}
+          >
+            Home
+          </span>
+        </Link>
+      ),
     },
   ];
 
@@ -198,62 +311,84 @@ function Login() {
     console.log("resourceAcl ori=>", resourceAcl);
   };
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    const state = urlParams.get("state");
+    if (current === 0) {
+      if (code && state) {
+        console.log("Login process completed successfully");
+        setCurrent(1); // 在登录流程完成后设置状态
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (connected) {
+      console.log("Connect wallet process completed successfully");
+      setTimeout(() => {
+        setCurrent(2);
+      }, 3 * 1000);
+    }
+  }, [connected]);
+
+  if (session.isLoggedIn) {
+    return <Navigate to="/" />;
+  }
+
   return (
     <div className="p-login">
-      {/* {session.isLoggedIn ? (
-        <Link to="/marketplace">
-          <button className="login-btn">NFT Marketplace</button>
-        </Link>
-      ) : (
-        <div>
-          <div className="d-flex">
-            <div className="img-box"></div>
-            <div className="ms-5 d-flex flex-column justify-content-center align-items-center">
-              <div className="login-txt">
-                <h1>{steps[current].title}</h1>
-                <p className="text-start">{steps[current].content}</p>
-              </div>
-              {steps[current].btn ? (
-                <div className="d-flex login-id">
-                  <button className="login-btn">{steps[current].btn}</button>
-                </div>
-              ) : (
-                steps[current].btnCnt
-              )}
-            </div>
+      {contextHolder}
+      <div>
+        <div className="d-flex">
+          <div className="img-box">
+            <img src={steps[current].img} alt="nft example" />
           </div>
-          <div
-            style={{
-              marginTop: 24,
-            }}
-          >
-            {current < steps.length - 1 && (
-              <Button type="primary" onClick={() => nextStep()}>
-                Next
-              </Button>
-            )}
-            {current === steps.length - 1 && (
-              <Button
-                type="primary"
-                onClick={() => message.success("Processing complete!")}
-              >
-                Done
-              </Button>
-            )}
-            {current > 0 && (
-              <Button
-                style={{
-                  margin: "0 8px",
-                }}
-                onClick={() => prev()}
-              >
-                Previous
-              </Button>
+          <div className="d-flex flex-column justify-content-center align-items-center">
+            <div className="login-txt">
+              <h1>{steps[current].title}</h1>
+              <div className="text-start">{steps[current].content}</div>
+            </div>
+            {steps[current].btn ? (
+              <div className="d-flex login-id">
+                <button className="login-btn">{steps[current].btn}</button>
+              </div>
+            ) : (
+              steps[current].btnCnt
             )}
           </div>
         </div>
-      )} */}
-      <div className="test">
+        <div
+          style={{
+            marginTop: 24,
+          }}
+        >
+          {current < steps.length - 1 && (
+            <Button type="primary" onClick={() => nextStep()}>
+              Next
+            </Button>
+          )}
+          {current === steps.length - 1 && (
+            <Button
+              type="primary"
+              onClick={() => successMsg("Processing complete!")}
+            >
+              Done
+            </Button>
+          )}
+          {current > 0 && (
+            <Button
+              style={{
+                margin: "0 8px",
+              }}
+              onClick={() => prev()}
+            >
+              Previous
+            </Button>
+          )}
+        </div>
+      </div>
+      {/* <div className="test">
         <div className="testACL">
           <h2>Set ACL access and origin</h2>
           <form id="aclForm">
@@ -303,37 +438,6 @@ function Login() {
             </div>
           </form>
         </div>
-      </div>
-      {/* <div className="img-box"></div>
-      <div>
-        <div className="login-txt">
-          <h1>Login with your Solid Pod</h1>
-          <p className="text-start">
-            Welcome! You can connect to your Solid POD using your webId and
-            start creating, collecting and selling NFTs. If you don't have one,
-            learn how to get started at{" "}
-            <a
-              className="solid-link"
-              href="https://solidproject.org/"
-              target="_blank"
-            >
-              solidproject.org
-            </a>
-            .
-          </p>
-        </div>
-        {session.isLoggedIn ? (
-          <Link to="/marketplace">
-            <button className="login-btn">NFT Marketplace</button>
-          </Link>
-        ) : (
-          <div className="d-flex login-id">
-            <Input className="web-id" placeholder="Enter your webId" />
-            <Link to="/login">
-              <button className="login-btn ms-2">Log in</button>
-            </Link>
-          </div>
-        )}
       </div> */}
     </div>
   );
