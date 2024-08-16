@@ -35,6 +35,7 @@ export default function UserNFT() {
   }, [getResource, session.webId]);
 
   const mainContainer = useResource(mainContainerUri);
+  const userName = session.webId;
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
@@ -45,9 +46,16 @@ export default function UserNFT() {
     <div className="webpage">
       <Header />
       <div className="intro-box">
-        <h1>Create your own NFT</h1>
+        <h1>Wallet Details</h1>
+        <div className="wallet">
+          <p className="title">Wallet Address</p>
+          <p className="walletInfo">{session.webId}</p>
+          <p className="title">Wallet Balance</p>
+          <p className="walletInfo">0 ETH</p>
+        </div>
+        <h2>{userName + "'s" && "My"} NFTs</h2>
+        <MyNFT mainContainer={mainContainer} />
       </div>
-      <MyNFT mainContainer={mainContainer} />
     </div>
   );
 }

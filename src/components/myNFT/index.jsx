@@ -5,7 +5,6 @@ import "./myNFT.scss";
 export const MyNFT = ({ mainContainer }) => {
   return (
     <div className="marketplace-container">
-      <h2>My NFTs</h2>
       <div className="nft-box">
         {mainContainer
           // Get all the children of the main container

@@ -1,0 +1,20 @@
+h2 {
+  text-align: center;
+}
+
+.intro-box {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  .wallet {
+    padding: 0 100px;
+  }
+  .title {
+    font-size: 22px;
+    color: #858584;
+    line-height: 160%;
+  }
+  .walletInfo {
+    font-size: 22px;
+  }
+}
