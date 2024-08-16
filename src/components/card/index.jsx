@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useLdo, useResource, useSubject } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { WalletContext } from "../../index";
-import { Button } from "antd";
+import { Button, Avatar, Card } from "antd";
+import "./card.scss";
 
 export const NFTCard = ({ dataUri, token }) => {
   const nftIndexUri = dataUri.endsWith("index.ttl")
@@ -35,17 +36,30 @@ export const NFTCard = ({ dataUri, token }) => {
     newTo = nft?.image?.["@id"];
   }
 
+  let walletAddress = "0xC95B52BC6BC70a029DF892C4a9CA029B4eEDc558";
+
+  const getOwner = () => {
+    return nft?.owner === walletAddress;
+  };
+
   return (
-    <Link to={newTo}>
-      <div className="container">
-        <img src={blobUrl} alt="" className="image" crossOrigin="anonymous" />
-      </div>
-      <div className="text-container">
+    <Link to={newTo} className="card">
+      <Card cover={<img alt="example" src={blobUrl} />} className="exampleNFT">
+        <div className="title">
+          <h4>{nft.title}</h4>
+        </div>
+        <div className="creator">
+          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+          <span className="mt-2">Animakid</span>
+        </div>
+      </Card>
+      {/* <img src={blobUrl} alt="" className="image" crossOrigin="anonymous" />
+      <div className="text">
         <strong className="title">{nft.title}</strong>
-        <p>owner: {nft.owner}</p>
-        <p className="description">{nft.description}</p>
+        {!getOwner() && <p>owner: {nft.owner}</p>}
+        <p className="description">{nft.description || "no description"}</p>
         {token && <Button>Details</Button>}
-      </div>
+      </div> */}
     </Link>
   );
 };

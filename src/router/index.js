@@ -8,6 +8,7 @@ import ErrorPage from "../pages/error";
 import MintNFT from "../pages/mintNFT";
 import Market from "../pages/marketplace";
 import NFTPage from "../pages/nftPage";
+import UserNFT from "../pages/userNFT";
 
 const PrivateRoute = ({ element }) => {
   const session = useContext(AuthContext);
@@ -31,6 +32,10 @@ export const globalRouters = createBrowserRouter([
   {
     path: "/mintNFT",
     element: <MintNFT />,
+  },
+  {
+    path: "/myNFT",
+    element: <UserNFT />,
   },
   {
     path: "/marketplace",

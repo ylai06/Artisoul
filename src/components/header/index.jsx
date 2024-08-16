@@ -78,7 +78,7 @@ export const Header = () => {
                       <a
                         className="nav-link dropdown-toggle"
                         data-toggle="dropdown"
-                        href="#"
+                        href="/"
                         role="button"
                         aria-haspopup="true"
                         aria-expanded="false"
@@ -101,19 +101,19 @@ export const Header = () => {
                       </div>
                     </li>
                     <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
-                      <a className="nav-link" href="/marketplace">
+                      <Link className="nav-link" to="/marketplace">
                         Marketplace
-                      </a>
+                      </Link>
                     </li>
-                    <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
-                      <a className="nav-link" href="/mintNFT">
+                    <li className="nav-item pl-4 pl-md-0 ml-0 ml- md-4">
+                      <Link className="nav-link" to="/mintNFT">
                         Mint NFT
-                      </a>
+                      </Link>
                     </li>
                     <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
-                      <a className="nav-link" href="/mintNFT">
-                        Sell NFT
-                      </a>
+                      <Link className="nav-link" to="/myNFT">
+                        My NFT
+                      </Link>
                     </li>
                     {session.isLoggedIn ? (
                       <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
