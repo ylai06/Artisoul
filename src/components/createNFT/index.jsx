@@ -176,9 +176,20 @@ export const CreateNFT = ({ mainContainer }) => {
   return (
     <div>
       <form>
-        <h2>Create your NFT to the marketplace</h2>
+        <h3>Step2: Upload digital asset & details</h3>
+        <p className="hint">
+          Next, you need to upload your digital asset, provide Artwork name and
+          description for your digital artwork and Mint NFT.{" "}
+        </p>
         <div className="metadata">
-          <div className="me-3 w-75">
+          <div className="preview-img">
+            <Image
+              width={200}
+              height={200}
+              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+            />
+          </div>
+          <div className="me-3 add-details">
             <div className="upload-img-box">
               <Input
                 className="upload-img"
@@ -187,7 +198,7 @@ export const CreateNFT = ({ mainContainer }) => {
                 onChange={OnChangeFile}
               ></Input>
             </div>
-            <div className="upload-box w-25">
+            <div className="upload-box">
               <Input
                 id="name"
                 type="text"
@@ -203,6 +214,7 @@ export const CreateNFT = ({ mainContainer }) => {
                 type="number"
                 placeholder="Price for this NFT."
                 step="0.0001"
+                min={0.0001}
                 value={formParams.price}
                 onChange={(e) =>
                   updateFormParams({ ...formParams, price: e.target.value })
@@ -226,21 +238,16 @@ export const CreateNFT = ({ mainContainer }) => {
               ></TextArea>
             </div>
           </div>
-          <div>{message}123</div>
-          <button
-            className="login-btn mt-4"
-            type="primary"
-            onClick={listNFT}
-            id="list-button"
-          >
-            Mint NFT
-          </button>
         </div>
-        <Image
-          width={200}
-          height={200}
-          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        />
+        <div>{message}123</div>
+        <button
+          className="login-btn mt-3"
+          type="primary"
+          onClick={listNFT}
+          id="list-button"
+        >
+          Mint NFT
+        </button>
       </form>
     </div>
   );

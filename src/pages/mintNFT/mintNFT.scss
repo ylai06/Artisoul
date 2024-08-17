@@ -3,14 +3,18 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  h2{
+  h2 {
     margin-left: 0px;
     margin-right: 0px;
   }
 }
-.intro-box{
+.intro-box {
   width: 60%;
-  p{
+  p {
     font-size: 14px;
+  }
+  h3 {
+    width: 80vw;
+    margin-bottom: 5px;
   }
 }

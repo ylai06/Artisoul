@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
-import { setWacRuleForAclUri, deleteResource, readResource } from "@ldo/solid";
+import { getWacUri, deleteResource, readResource } from "@ldo/solid";
 import { createDataset } from "@ldo/dataset";
-import { Button, Input } from "antd";
+import { Button, Checkbox } from "antd";
 import { v4 } from "uuid";
 import {
   getSolidDatasetWithAcl,
@@ -22,6 +22,7 @@ import {
   getResourceAcl,
   getSolidDataset,
 } from "@inrupt/solid-client";
+import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
 import { deleteRecursively } from "../../api/aclControl";
 import "./setACL.scss";
 
@@ -31,11 +32,15 @@ export const SetACL = ({ mainContainer }) => {
   const [deleteState, setDeleteState] = useState(false);
   const { createData, commitData } = useLdo();
   const { session, fetch } = useSolidAuth();
-  const webId = session.webId;
+  const [publicAccess, setPublicAccess] = useState([]);
+  const [agentAccess, setAgentAccess] = useState([]);
+  const [isWACSet, setIsWACSet] = useState(false);
+  const userPod = process.env.REACT_APP_USER_POD_LIST.split(",");
+
+  const agentWebId = "https://solidweb.me/NFTsystem/profile/card#me"; // userPod[0]
 
   // 查看公共訪問權限
-  const onGetPublic = useCallback(async (e) => {
-    e.preventDefault();
+  const onGetPublic = useCallback(async () => {
     if (!mainContainer) return;
     const myContainerUrl = mainContainer.uri;
     const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
@@ -43,9 +48,13 @@ export const SetACL = ({ mainContainer }) => {
     });
     const publicAccess = getPublicAccess(myDatasetWithAcl);
     console.log("public Access=>", publicAccess);
-  }, []);
+    const result = Object.keys(publicAccess).filter(
+      (key) => publicAccess[key] === true
+    );
+    setPublicAccess(result);
+  }, [mainContainer]);
 
-  // 設定公共訪問權限（首次登入）
+  // 設定公共訪問權限當前文件夾以及子資源（首次登入）
   const onSetPublic = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -66,17 +75,22 @@ export const SetACL = ({ mainContainer }) => {
       };
       updatedAcl = setPublicResourceAccess(resourceAcl, newRule);
       await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
+      updatedAcl = setPublicDefaultAccess(resourceAcl, newRule);
+      await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     } else {
-      updatedAcl = setPublicResourceAccess(resourceAcl, {
+      let newRule = {
         read: true,
         append: true,
         write: true,
-        control: true,
-      });
+        control: false,
+      };
+      updatedAcl = setPublicResourceAccess(resourceAcl, newRule);
+      await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
+      updatedAcl = setPublicDefaultAccess(resourceAcl, newRule);
       await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     }
     alert("Successfully set public ACL!!");
-    console.log("Set public Access=>", updatedAcl);
+    onGetPublic();
   }, []);
 
   // 設定子資源公共訪問權限
@@ -101,47 +115,68 @@ export const SetACL = ({ mainContainer }) => {
       write: true,
       control: true,
     };
-    updatedAcl = await setPublicDefaultAccess(resourceAcl, newRule);
+    updatedAcl = setPublicDefaultAccess(resourceAcl, newRule);
     await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
     console.log("Set public Access=>", updatedAcl);
   }, []);
 
-  // 查看Agent訪問權限
-  const onGetAgent = useCallback(async (e) => {
+  // 設定當前資源以及子資源公共訪問權限
+  const onSetPublicLDO = useCallback(async (e) => {
     e.preventDefault();
+    if (!mainContainer) return;
+
+    // Set the ACL for the main container
+    const aclUri = mainContainer.child(".acl").uri;
+    const res = await getWacUri(mainContainer.uri);
+
+    let newRule = {
+      public: {
+        read: true,
+        append: false,
+        write: false,
+        control: false,
+      },
+    };
+
+    try {
+      const result = await setWacRuleForAclUriWithOri(
+        aclUri,
+        newRule,
+        mainContainer.uri,
+        { fetch: fetch }
+      );
+      console.log("WAC rules set successfully:", result);
+    } catch (error) {
+      console.error("Error setting WAC rules:", error);
+    }
+
+    onGetAgent();
+  }, []);
+
+  // 查看Agent訪問權限
+  const onGetAgent = useCallback(async () => {
     if (!mainContainer) return;
     const myContainerUrl = mainContainer.uri;
     const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
       fetch: fetch,
     });
-    const publicAccess = getPublicAccess(myDatasetWithAcl);
-    const resourceAcl = createAcl(myDatasetWithAcl);
-    let updatedAcl = setAgentResourceAccess(resourceAcl, webId, {
-      read: true,
-      append: true,
-      write: true,
-      control: true,
-    });
-    await saveAclFor(myDatasetWithAcl, updatedAcl, { fetch: fetch });
-    const myUpdateDatasetWithAcl = await getSolidDatasetWithAcl(
-      myContainerUrl,
-      { fetch: fetch }
-    );
-    const agentAccess = getAgentAccess(myUpdateDatasetWithAcl, webId);
-    console.log("agentAccess=>", agentAccess);
+    const access = getAgentAccess(myDatasetWithAcl, agentWebId);
+    console.log("agentAccess=>", access);
+    const result = Object.keys(access).filter((key) => access[key] === true);
+    console.log("agentAccess result=>", result);
+    setAgentAccess(result);
   }, []);
 
   // 設定Agent訪問權限
   const onSetAgent = useCallback(async (e) => {
     e.preventDefault();
-
-    console.log("onSet=>", mainContainer.uri, session);
     if (!mainContainer) return;
 
     // Set the ACL for the main container
     const aclUri = mainContainer.child(".acl").uri;
-    console.log("aclUri=>", aclUri);
-    const accessTo = mainContainer.uri;
+    const res = await getWacUri(mainContainer.uri);
+
+    const originURL = "https://penny.vincenttunru.com";
 
     let newRule = {
       public: {
@@ -152,32 +187,34 @@ export const SetACL = ({ mainContainer }) => {
       },
       authenticated: {
         read: true,
-        append: false,
-        write: false,
+        append: true,
+        write: true,
         control: false,
       },
       agent: {
-        [webId]: {
+        [agentWebId]: {
           read: true,
           append: true,
           write: true,
           control: true,
+          origin: originURL,
         },
       },
     };
 
     try {
-      const result = await setWacRuleForAclUri(aclUri, newRule, accessTo);
+      const result = await setWacRuleForAclUriWithOri(
+        aclUri,
+        newRule,
+        mainContainer.uri,
+        { fetch: fetch }
+      );
       console.log("WAC rules set successfully:", result);
     } catch (error) {
       console.error("Error setting WAC rules:", error);
     }
-    // Set the ACL for the main container
-    // const aclData = createData(AclShape, acl.uri, acl);
-    // aclData.accessTo = { "@id": mainContainer.uri };
-    // aclData.agent = { "@id": "https://solid.community/profile/card#me" };
-    // aclData.mode = "Control";
-    // await commitData(aclData);
+
+    onGetAgent();
   }, []);
 
   const onSubmit = useCallback(
@@ -304,21 +341,98 @@ export const SetACL = ({ mainContainer }) => {
       }
       setDeleteState(false);
     }
-  }, [deleteState]);
+  }, [deleteState, publicAccess, agentAccess]);
+
+  useEffect(() => {
+    if (onGetPublic) onGetPublic();
+    if (onGetAgent) onGetAgent();
+  }, [onGetPublic, onGetAgent]);
+
+  const optionsPublic = [
+    {
+      label: "read",
+      value: "read",
+    },
+    {
+      label: "write",
+      value: "write",
+    },
+    {
+      label: "append",
+      value: "append",
+    },
+    {
+      label: "control",
+      value: "control",
+    },
+  ];
+
+  const optionsAgent = [
+    {
+      label: "read",
+      value: "read",
+    },
+    {
+      label: "write",
+      value: "write",
+    },
+    {
+      label: "append",
+      value: "append",
+    },
+    {
+      label: "control",
+      value: "control",
+    },
+  ];
 
   return (
-    <div>
-      <h2>Set ACL</h2>
-      <Button type="primary" className="btn" onClick={onGetPublic}>
+    <div className="setacl">
+      <h3>Step1: Set Web access control list</h3>
+      <p className="hint mb-0">
+        Learn more about{" "}
+        <a
+          href="https://solid.github.io/web-access-control-spec/#access-modes"
+          target="_blank"
+          style={{ textDecoration: "underline", color: "#8B008B" }}
+        >
+          WAC(Web Access Control)
+        </a>
+      </p>
+      <h4>Access control list for public</h4>
+      <p className="hint">
+        *Before minting, you should allow the public to access your pod. Remind
+        you that this only allow public read access, while you retain full
+        access to your data.
+      </p>
+      <Checkbox.Group
+        options={optionsPublic}
+        disabled
+        value={publicAccess}
+        className="checkbox"
+      />
+      <h4>Access control list for agent</h4>
+      <p className="hint">
+        *Additionally, when a user purchases the NFT, the buyer will become an
+        agent with the right to transfer the NFT's data to their own Solid POD.
+        This permission will be granted as part of the post-purchase process.
+      </p>
+      <Checkbox.Group
+        options={optionsAgent}
+        disabled
+        value={agentAccess}
+        className="checkbox"
+      />
+      <button className="login-btn m-4" onClick={onSetAgent}>
+        Grant Access
+      </button>
+
+      {/* <Button type="primary" className="btn" onClick={onGetPublic}>
         Get Public ACL
-      </Button>
-      <Button type="primary" className="btn" onClick={onSetPublic}>
-        Set Public ACL
       </Button>
       <Button type="primary" className="btn" onClick={onSetResourcePublic}>
         Set Child Resource ACL
       </Button>
-      <br />
       <Button
         type="primary"
         className="btn"
@@ -326,19 +440,14 @@ export const SetACL = ({ mainContainer }) => {
       >
         Delete problematic resources
       </Button>
-      {/* <Button className="btn" onClick={onDelete}>
-        Delete problematic resources
-      </Button> */}
-      {/* 
-      <p>Set and get Agent ACL</p>
-      <Button className="btn" onClick={onGetAgent}>
+      <Button type="primary" className="btn" onClick={onGetAgent}>
         Get Agent ACL file
       </Button>
-      <Button className="btn" onClick={onSetAgent}>
-        Set Agent ACL
-      </Button> */}
-
-      <h2>Upload NFT</h2>
+      <Button type="primary" className="btn" onClick={onSetPublic}>
+          Set Public ACL
+        </Button> */}
+      {/* Here you only upload image to solid pod, no ethereum blockchain */}
+      {/* <h2>Upload NFT</h2>
       <form>
         <div className="details-box">
           <Input
@@ -358,7 +467,7 @@ export const SetACL = ({ mainContainer }) => {
         <Button type="primary" onClick={onSubmit}>
           Upload
         </Button>
-      </form>
+      </form> */}
     </div>
   );
 };

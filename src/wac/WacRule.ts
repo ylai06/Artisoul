@@ -6,6 +6,7 @@ export interface AccessModeList {
   append: boolean;
   write: boolean;
   control: boolean;
+  origin?: string;
 }
 
 /**

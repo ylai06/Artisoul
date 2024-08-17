@@ -1,17 +1,30 @@
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 80px;
+}
 
 .metadata {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  .add-details {
+    margin-left: 20px;
+  }
 }
 
 .upload-box {
   margin-bottom: 10px;
   input {
-    border-radius: 20px;
+    border-radius: 10px;
     display: inline;
   }
   span {
     font-size: 14px;
+    float: right;
   }
   textArea {
     border-radius: 20px;
@@ -20,11 +33,18 @@
 
 .upload-img-box {
   background-color: transparent;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
 .upload-img {
   border: 0;
   width: 200px;
   display: inline;
+  background: transparent;
+  color: white;
+  margin-left: -10px;
+}
+.upload-img:hover {
+  background: transparent;
+  cursor: pointer;
 }

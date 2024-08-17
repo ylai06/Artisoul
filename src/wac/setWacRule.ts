@@ -37,7 +37,6 @@ export async function setWacRuleForAclUriWithOri(
   aclUri: LeafUri,
   newRule: WacRule,
   accessTo: string,
-  aclOrigin?: string,
   options?: BasicRequestOptions,
 ): Promise<SetWacRuleResult> {
   const fetch = options?.fetch || crossFetch;
@@ -51,7 +50,7 @@ export async function setWacRuleForAclUriWithOri(
   function addRuleToDataset(
     type: "public" | "authenticated" | "agent",
     accessModeList: AccessModeList,
-    agentId?: string,
+    agentId?: string
   ) {
     const accessModeListHash = hashAccessModeList(accessModeList);
 
@@ -63,7 +62,7 @@ export async function setWacRuleForAclUriWithOri(
       //   .fromSubject(`${aclUri}#${v4()}`);
       const authorization = dataset
         .usingType(AuthorizationShapeType)
-        .fromSubject(`${aclUri}#${v4()}`);
+        .fromSubject(`${aclUri}#${type}`);
       authorization.type = { "@id": "Authorization" };
       if (accessModeList.read) authorization.mode?.push({ "@id": "Read" });
       if (accessModeList.write) authorization.mode?.push({ "@id": "Write" });
@@ -74,9 +73,11 @@ export async function setWacRuleForAclUriWithOri(
       if (isContainerUri(accessTo)) {
         authorization.default = { "@id": accessTo };
       }
-      if (aclOrigin) {
-        authorization.Origin = { "@id": aclOrigin };
+
+      if (accessModeList.origin) {
+        authorization.Origin = { "@id": accessModeList.origin };
       }
+      
       ruleMap[accessModeListHash] = authorization;
     }
 
@@ -92,7 +93,6 @@ export async function setWacRuleForAclUriWithOri(
   }
 
   // Add each rule to the dataset
-  console.log(aclOrigin);
   if (newRule.public) {
     addRuleToDataset("public", newRule.public);
   }
