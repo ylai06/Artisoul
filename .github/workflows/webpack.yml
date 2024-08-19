@@ -1,47 +1,31 @@
-name: NodeJS with Webpack
+name: Deploy GitHub Pages
 
+# 触发条件：在 push 到 master 分支后
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - master
 
+# 任务
 jobs:
-  build:
+  build-and-deploy:
+    # 服务器环境：最新版 Ubuntu
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    # 拉取代码
+    - name: Checkout
+      uses: actions/checkout@v2 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
       with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Build
-      run: |
-        npm install
-        npx webpack
-
-    - name: Run the tests and generate coverage report
-      run: npm test -- --coverage
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-
-
+        persist-credentials: false
+    
+    # 生成静态文件
+    - name: Install and Build
+      run: npm install && npm run build
+    
+    # 部署到 GitHub Pages
     - name: Deploy
-      run: |
-        git config --global user.name $user_name
-        git config --global user.email $user_email
-        git remote set-url origin @github.com/${repository">https://${github_token}@github.com/${repository}
-        npm run deploy
-      env:
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        github_token: ${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}
-        repository: ${{ github.repository }}
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: build
