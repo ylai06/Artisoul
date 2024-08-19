@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { QueryEngine } from "@comunica/query-sparql-solid";
 import Marketplace from "../../contracts/Marketplace.json";
+import { Header } from "../../components/header";
 import { NFTCard } from "../../components/card";
-import { Button, Input } from "antd";
-import "./style.scss";
+import { SearchOutlined } from "@ant-design/icons";
+import "./market.scss";
 
 const Market = () => {
   const [data, setData] = useState(null);
@@ -23,7 +24,7 @@ const Market = () => {
   async function searchNFTs() {
     const myEngine = new QueryEngine();
     const returnValue = [];
-    searchResult.innerText = "searching...";
+    searchResult.innerText = "Searching...";
     if (searchValue) {
       const search = searchValue.toLowerCase();
       try {
@@ -79,7 +80,7 @@ const Market = () => {
         searchResult.textContent = "Error: " + error;
       }
     } else {
-      searchResult.textContent = "Please enter a search term";
+      searchResult.textContent = "Please enter a search term and try again";
     }
     setSearchValue("");
     setFetched(true);
@@ -132,35 +133,36 @@ const Market = () => {
 
   return (
     <div>
-      <h1>Marketplace</h1>
-      <div className="search-box">
-        <h2>search key words</h2>
-        <div>
-          <Input
-            type="search"
+      <Header />
+      <div className="webpage">
+        <h1>Marketplace</h1>
+        <p className="hint">
+          Explore Unique NFTs on the Leading Digital Marketplace!
+        </p>
+        <div className="search-box">
+          <input
             id="searchInput"
-            placeholder="Search..."
+            placeholder="Search your favourite NFTs..."
             onChange={(e) => setSearchValue(e.target.value)}
           />
-          <Button
-            type="primary"
-            id="searchButton"
-            onClick={() => setFetched(false)}
-          >
-            Search
-          </Button>
+          <div onClick={() => setFetched(false)} className="search-icon">
+            <SearchOutlined />
+          </div>
         </div>
         <p id="searchResult"></p>
       </div>
-      <div>
-        {data &&
+      <div className="nft-list">
+        {data === null ? (
+          <p>loading.....</p>
+        ) : (
           data.map((item, index) => {
             return (
               <div key={index}>
                 <NFTCard dataUri={item.tokenURI} token={item.tokenId} />
               </div>
             );
-          })}
+          })
+        )}
       </div>
     </div>
   );

@@ -8,8 +8,10 @@ import {
   useSolidAuth,
 } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
-import { Button } from "antd";
+import { Header } from "../../components/header";
+import { Button, Image } from "antd";
 import { v4 } from "uuid";
+import dayjs from "dayjs";
 import "./style.scss";
 
 function NFTPage() {
@@ -203,33 +205,39 @@ function NFTPage() {
     return (
       <div className="nft-page">
         <div className="img">
-          <img src={blobUrl} alt="" />
+          <Image src={blobUrl} alt={nft.title} />
         </div>
         <div className="nft-info">
-          <h2>{nft.title}</h2>
+          <h1>{nft.title}</h1>
           <p>
-            <strong>Token ID: </strong>
+            <p className="hint">Token ID </p>
             {contractInfo.tokenId}
           </p>
           <p>
-            <strong>Description: </strong>
+            <p className="hint">Description </p>
             {nft.description}
           </p>
           <p>
-            <strong>Price: </strong>
+            <p className="hint">Price </p>
             {contractInfo.price} ETH
           </p>
           <p>
-            <strong>Create Date: </strong>
-            {nft.uploadDate}
+            <p className="hint">Create Date </p>
+            {dayjs(nft.uploadDate).format("YYYY/MM/DD")}
           </p>
           {currAddress !== contractInfo.owner &&
           currAddress !== contractInfo.seller ? (
-            <Button type="primary" onClick={() => buyNFT(tradeData)}>
-              Buy this NFT
-            </Button>
+            <div>
+              <p className="hint">Owned by</p>
+              {currAddress}
+              <button
+                onClick={() => buyNFT(tradeData)}
+              >
+                Buy this NFT
+              </button>
+            </div>
           ) : (
-            <p>You are the owner of this NFT</p>
+            <p className="hint">You are the owner of this NFT</p>
           )}
         </div>
       </div>
@@ -248,17 +256,19 @@ function NFTPage() {
 
   return (
     <div>
-      <h1>NFT Page</h1>
-      {dataFetched ? (
-        <MetaInfo
-          dataUri={data.metaDataUri}
-          contractInfo={data}
-          currAddress={currAddress}
-        />
-      ) : (
-        <p>Loading...</p>
-      )}
-      <p>{message}</p>
+      <Header />
+      <div className="webpage">
+        {dataFetched ? (
+          <MetaInfo
+            dataUri={data.metaDataUri}
+            contractInfo={data}
+            currAddress={currAddress}
+          />
+        ) : (
+          <p>Loading...</p>
+        )}
+        <p>{message}</p>
+      </div>
     </div>
   );
 }

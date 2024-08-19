@@ -3,7 +3,7 @@ import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
 import { getWacUri, deleteResource, readResource } from "@ldo/solid";
 import { createDataset } from "@ldo/dataset";
-import { Button, Checkbox } from "antd";
+import { Checkbox } from "antd";
 import { v4 } from "uuid";
 import {
   getSolidDatasetWithAcl,
@@ -31,10 +31,9 @@ export const SetACL = ({ mainContainer }) => {
   const [selectedFile, setSelectedFile] = useState([]);
   const [deleteState, setDeleteState] = useState(false);
   const { createData, commitData } = useLdo();
-  const { session, fetch } = useSolidAuth();
+  const { fetch } = useSolidAuth();
   const [publicAccess, setPublicAccess] = useState([]);
   const [agentAccess, setAgentAccess] = useState([]);
-  const [isWACSet, setIsWACSet] = useState(false);
   const userPod = process.env.REACT_APP_USER_POD_LIST.split(",");
 
   const agentWebId = "https://solidweb.me/NFTsystem/profile/card#me"; // userPod[0]

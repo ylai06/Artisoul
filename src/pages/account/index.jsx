@@ -120,7 +120,7 @@ function Account() {
               <button className="login-btn" onClick={showModal}>
                 Edit Profile
               </button>
-              <Link to="/mintNFT">
+              <Link to="/myNFT">
                 <button className="login-btn">My NFTs</button>
               </Link>
             </div>

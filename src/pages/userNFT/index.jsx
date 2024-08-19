@@ -43,9 +43,9 @@ export default function UserNFT() {
     return <p>This part is for upload your digital asset. Log in first.</p>;
 
   return (
-    <div className="webpage">
+    <div>
       <Header />
-      <div className="intro-box">
+      <div className="intro-box webpage">
         <h1>Wallet Details</h1>
         <div className="wallet">
           <p className="title">Wallet Address</p>

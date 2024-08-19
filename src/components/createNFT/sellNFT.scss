@@ -38,7 +38,6 @@ form {
 
 .upload-img {
   border: 0;
-  width: 200px;
   display: inline;
   background: transparent;
   color: white;
@@ -47,4 +46,14 @@ form {
 .upload-img:hover {
   background: transparent;
   cursor: pointer;
+}
+
+.upload-img:focus-within{
+  background: transparent;
+}
+
+.ant-input-outlined:focus-within {
+  border: none;
+  box-shadow: none;
+  outline: 0;
 }

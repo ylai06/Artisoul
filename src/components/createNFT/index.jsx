@@ -164,6 +164,7 @@ export const CreateNFT = ({ mainContainer }) => {
       alert("Successfully listed your NFT!");
       enableButton();
       updateFormParams({ name: "", description: "", price: "" });
+      updateMessage(" ");
       // window.location.replace("/"); // redirect to home page
     } catch (e) {
       alert("Upload error: " + e);
@@ -186,7 +187,8 @@ export const CreateNFT = ({ mainContainer }) => {
             <Image
               width={200}
               height={200}
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+              src={fileURL}
+              fallback="https://via.placeholder.com/200?text=Uploaded+Image"
             />
           </div>
           <div className="me-3 add-details">
@@ -239,7 +241,6 @@ export const CreateNFT = ({ mainContainer }) => {
             </div>
           </div>
         </div>
-        <div>{message}123</div>
         <button
           className="login-btn mt-3"
           type="primary"
@@ -248,6 +249,7 @@ export const CreateNFT = ({ mainContainer }) => {
         >
           Mint NFT
         </button>
+        <div>{message}</div>
       </form>
     </div>
   );

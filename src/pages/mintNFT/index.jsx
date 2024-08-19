@@ -59,7 +59,7 @@ function MintNFT() {
   return (
     <div className="webpage">
       <Header />
-      <div className="intro-box">
+      <div className="mint-box">
         <h1>Create your own NFT</h1>
       </div>
       <UploadImg />

@@ -11,18 +11,6 @@ function Home() {
     <div>
       <Header />
       <div className="P-home webpage">
-        {session.isLoggedIn ? (
-          <div className="ipt-con">
-            <Link to="/mintNFT">
-              <Button type="primary">Mint NFT</Button>
-            </Link>
-            <Link to="/marketplace">
-              <Button type="primary">NFT Marketplace</Button>
-            </Link>
-          </div>
-        ) : (
-          <></>
-        )}
         <div className="panel">
           <div className="intro-txt">
             <h1>Discover Digital Art & Collect NFTs</h1>
