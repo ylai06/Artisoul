@@ -1,6 +1,5 @@
 import React, { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { RouterProvider } from "react-router-dom";
 import { globalRouters } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";
@@ -17,15 +16,11 @@ const AppWrapper = () => {
     walletBalance: 0,
   });
 
-  const [authSession, setAuthSession] = useState(false);
-
   return (
     <BrowserSolidLdoProvider>
-      <AuthContext.Provider value={{ authSession, setAuthSession }}>
         <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
           <RouterProvider router={globalRouters}></RouterProvider>
         </WalletContext.Provider>
-      </AuthContext.Provider>
     </BrowserSolidLdoProvider>
   );
 };
