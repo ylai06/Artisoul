@@ -22,7 +22,7 @@ import {
 import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
 import { Link, Navigate } from "react-router-dom";
 import { ethers } from "ethers";
-import { WalletContext, AuthContext } from "../../index";
+import { WalletContext } from "../../index";
 import "./login.scss";
 
 const Checkbox = ({ label, value, onChange }) => {

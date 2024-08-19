@@ -7,7 +7,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./common/styles/frame.scss";
 
 export const WalletContext = createContext(null);
-export const AuthContext = createContext(null);
 
 const AppWrapper = () => {
   const [walletDetails, setWalletDetails] = useState({
@@ -18,9 +17,9 @@ const AppWrapper = () => {
 
   return (
     <BrowserSolidLdoProvider>
-        <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
-          <RouterProvider router={globalRouters}></RouterProvider>
-        </WalletContext.Provider>
+      <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
+        <RouterProvider router={globalRouters}></RouterProvider>
+      </WalletContext.Provider>
     </BrowserSolidLdoProvider>
   );
 };
