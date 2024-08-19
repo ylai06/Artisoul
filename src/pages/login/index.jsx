@@ -44,7 +44,6 @@ function Login() {
   const { token } = theme.useToken();
   const [connected, setConnected] = useState(false); // connect to wallet
   const { walletDetails, setWalletDetails } = useContext(WalletContext);
-  const { authSession, setAuthSession } = useContext(AuthContext);
   const [current, setCurrent] = useState(0);
   const [messageApi, contextHolder] = message.useMessage();
   const [ACL, setACL] = React.useState({
@@ -213,7 +212,6 @@ function Login() {
           <span
             onClick={() => {
               console.log("Home", session.isLoggedIn);
-              setAuthSession(session.isLoggedIn);
             }}
           >
             Home
