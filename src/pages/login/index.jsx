@@ -40,7 +40,7 @@ const Checkbox = ({ label, value, onChange }) => {
 };
 
 function Login() {
-  const { session, login, fetch } = useSolidAuth();
+  const { session, login, fetch, logout } = useSolidAuth();
   const { token } = theme.useToken();
   const [connected, setConnected] = useState(false); // connect to wallet
   const { walletDetails, setWalletDetails } = useContext(WalletContext);

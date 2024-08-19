@@ -2,7 +2,7 @@
   "name": "nft-manage",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/ylai06.github.io/Artisoul",
+  "homepage": "https://ylai06.github.io/Artisoul",
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
     "@babel/core": "^7.16.0",
