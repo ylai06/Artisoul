@@ -5,6 +5,8 @@ import { Header } from "../../components/header";
 import { NFTCard } from "../../components/card";
 import { SearchOutlined } from "@ant-design/icons";
 import "./market.scss";
+import { useResource } from "@ldo/solid-react";
+import { NFTsShapeType } from "../../.ldo/sysData.shapeTypes";
 
 const Market = () => {
   const [data, setData] = useState(null);
@@ -13,21 +15,51 @@ const Market = () => {
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
   const searchResult = document.getElementById("searchResult");
+  const [pointerPods, setPointerPods] = useState([]);
+  const resource = useResource(
+    "https://solidweb.me/NFTsystem/my-solid-app/NFTList/"
+  );
 
-  const pointerPods = [
-    "https://solidweb.me/NFT-asset/my-solid-app/47d9896a-9f26-4c6a-812f-6f2e6c379b2b/index.ttl",
-    "https://solidweb.me/NFT-asset/my-solid-app/d8fcee9d-3956-4a92-8b27-7429a2ff260f/index.ttl",
-    "https://solidweb.me/User1/my-solid-app/35d799e1-9c57-4a00-9851-7054a5c43c19/index.ttl",
-    "https://solidweb.me/User1/my-solid-app/2c445824-2082-4932-b2fa-9b470627462b/index.ttl",
-  ];
+  async function getPodUri(respods) {
+    let podList = [];
+    if (respods != []) {
+      const myEngine = new QueryEngine();
+      const bindingsStream = await myEngine.queryBindings(
+        `
+        PREFIX ldo: <https://ldo.js.org/>
+        SELECT ?nft ?assetURI
+        WHERE {
+          ?nft ldo:assetURI ?assetURI;
+        }
+        `,
+        {
+          sources: respods,
+          lenient: true,
+        }
+      );
+      return new Promise((resolve, reject) => {
+        bindingsStream.on("data", (binding) => {
+          podList.push(binding.get("assetURI").value);
+        });
+        bindingsStream.on("end", () => {
+          console.log("Query execution completed.");
+          resolve(podList);
+        });
+        bindingsStream.on("error", (error) => {
+          console.error("Error in query result stream:", error);
+          reject(error);
+        });
+      });
+    }
+  }
 
   async function searchNFTs() {
-    const myEngine = new QueryEngine();
     const returnValue = [];
     searchResult.innerText = "Searching...";
     if (searchValue) {
       const search = searchValue.toLowerCase();
       try {
+        const myEngine = new QueryEngine();
         const bindingsStream = await myEngine.queryBindings(
           `
           PREFIX schema: <http://schema.org/>
@@ -50,7 +82,6 @@ const Market = () => {
           }
         );
         bindingsStream.on("data", (binding) => {
-          console.log(`Data: ${binding.toString()}`);
           returnValue.push({
             tokenURI: binding.get("nft").value,
             title: binding.get("title").value,
@@ -118,6 +149,18 @@ const Market = () => {
     setFetched(true);
     setData(items);
   }
+
+  useEffect(() => {
+    const getPods = async () => {
+      let respods = [];
+      resource?.children().map((child) => respods.push(child.uri));
+      const searchPods = await getPodUri(respods);
+      console.log("searchPods:", searchPods);
+      setPointerPods(searchPods);
+    };
+
+    getPods();
+  }, []);
 
   useEffect(() => {
     if (!dataFetched && data === null) {

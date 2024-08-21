@@ -113,8 +113,8 @@ export const CreateNFT = ({ mainContainer, webID }) => {
       alert(result.message);
     }
 
-    console.log(fileContainer.uri, "; NFT Metadata: ", result);
-    return fileContainer.uri;
+    console.log(metadata.uri, "; NFT Metadata: ", result);
+    return metadata.uri;
   }
 
   async function uploadURItoSysSolid(nftData) {
@@ -199,7 +199,6 @@ export const CreateNFT = ({ mainContainer, webID }) => {
   useEffect(() => {
     const sysID = "https://solidweb.me/NFTsystem/my-solid-app/NFTList/";
     const sysResource = getResource(sysID);
-    console.log("sysResource=>", sysResource);
     setSysContainer(sysResource);
   }, []);
 

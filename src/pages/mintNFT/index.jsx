@@ -21,7 +21,6 @@ const UploadImg = () => {
         // Get the root container associated with that WebId
         const rootContainerResult = await webIdResource.getRootContainer();
         // Check if there is an error
-        console.log("rootContainerResult=>", rootContainerResult);
         if (rootContainerResult.isError) {
           setIsLoading(false);
           return;
