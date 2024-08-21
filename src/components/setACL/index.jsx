@@ -3,7 +3,7 @@ import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
 import { getWacUri, deleteResource, readResource } from "@ldo/solid";
 import { createDataset } from "@ldo/dataset";
-import { Checkbox } from "antd";
+import { Checkbox, message as Msg } from "antd";
 import { v4 } from "uuid";
 import {
   getSolidDatasetWithAcl,
@@ -46,7 +46,6 @@ export const SetACL = ({ mainContainer }) => {
       fetch: fetch,
     });
     const publicAccess = getPublicAccess(myDatasetWithAcl);
-    console.log("public Access=>", publicAccess);
     const result = Object.keys(publicAccess).filter(
       (key) => publicAccess[key] === true
     );
@@ -160,9 +159,7 @@ export const SetACL = ({ mainContainer }) => {
       fetch: fetch,
     });
     const access = getAgentAccess(myDatasetWithAcl, agentWebId);
-    console.log("agentAccess=>", access);
     const result = Object.keys(access).filter((key) => access[key] === true);
-    console.log("agentAccess result=>", result);
     setAgentAccess(result);
   }, []);
 
@@ -202,18 +199,17 @@ export const SetACL = ({ mainContainer }) => {
     };
 
     try {
-      const result = await setWacRuleForAclUriWithOri(
-        aclUri,
-        newRule,
-        mainContainer.uri,
-        { fetch: fetch }
-      );
-      console.log("WAC rules set successfully:", result);
+      await setWacRuleForAclUriWithOri(aclUri, newRule, mainContainer.uri, {
+        fetch: fetch,
+      });
+      Msg.success("Successfully set public and agent WACs!", 3);
     } catch (error) {
-      console.error("Error setting WAC rules:", error);
+      // console.error("Error setting WAC rules:", error);
+      Msg.error(`Error setting WAC rules! ${error}`, 3);
     }
 
     onGetAgent();
+    onGetPublic();
   }, []);
 
   const onSubmit = useCallback(
@@ -387,7 +383,7 @@ export const SetACL = ({ mainContainer }) => {
 
   return (
     <div className="setacl">
-      <h3>Step1: Set Web access control list</h3>
+      <h3>Step1: Set web access control list</h3>
       <p className="hint mb-0">
         Learn more about{" "}
         <a

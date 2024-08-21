@@ -1,6 +1,10 @@
 import { Button, Input, message, theme } from "antd";
 import React, { useContext, useEffect, useState } from "react";
-import { useSolidAuth } from "@ldo/solid-react";
+import {
+  login,
+  getDefaultSession,
+  handleIncomingRedirect,
+} from "@inrupt/solid-client-authn-browser";
 import { getWacUri, getWacRuleWithAclUri } from "@ldo/solid";
 import {
   getSolidDatasetWithAcl,
@@ -40,8 +44,6 @@ const Checkbox = ({ label, value, onChange }) => {
 };
 
 function Login() {
-  const { session, login, fetch, logout } = useSolidAuth();
-  const { token } = theme.useToken();
   const [connected, setConnected] = useState(false); // connect to wallet
   const { walletDetails, setWalletDetails } = useContext(WalletContext);
   const [current, setCurrent] = useState(0);
@@ -157,12 +159,21 @@ function Login() {
             onClick={async (e) => {
               e.preventDefault();
               const issuer = document.getElementById("url").value;
+              const url = new URL(window.location.href);
+              // 提取出基礎的路徑和查詢字符串的問號 '?'
+              const baseUrl = `${url.origin}${url.pathname}`;
               if (!issuer) return;
-              try {
-                // 假設 login 是一個異步函數
-                await login(issuer);
-              } catch (error) {
-                errorMsg("Login failed!");
+              if (!getDefaultSession().info.isLoggedIn) {
+                try {
+                  // 假設 login 是一個異步函數
+                  await login({
+                    oidcIssuer: issuer,
+                    redirectUrl: baseUrl,
+                    clientName: "Artisoul",
+                  });
+                } catch (error) {
+                  errorMsg("Login failed!");
+                }
               }
             }}
           >
@@ -209,13 +220,7 @@ function Login() {
       ),
       btn: (
         <Link to="/">
-          <span
-            onClick={() => {
-              console.log("Home", session.isLoggedIn);
-            }}
-          >
-            Home
-          </span>
+          <button className="login-btn">Home</button>
         </Link>
       ),
     },
@@ -309,13 +314,18 @@ function Login() {
     console.log("resourceAcl ori=>", resourceAcl);
   };
 
+  async function completeLogin() {
+    console.log("Completing login process");
+    await handleIncomingRedirect();
+  }
+
   useEffect(() => {
+    completeLogin();
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
     const state = urlParams.get("state");
     if (current === 0) {
       if (code && state) {
-        console.log("Login process completed successfully");
         setCurrent(1); // 在登录流程完成后设置状态
       }
     }
@@ -330,10 +340,6 @@ function Login() {
     }
   }, [connected]);
 
-  if (session.isLoggedIn) {
-    return <Navigate to="/" />;
-  }
-
   return (
     <div className="p-login">
       {contextHolder}
@@ -347,13 +353,7 @@ function Login() {
               <h1>{steps[current].title}</h1>
               <div className="text-start">{steps[current].content}</div>
             </div>
-            {steps[current].btn ? (
-              <div className="d-flex login-id">
-                <button className="login-btn">{steps[current].btn}</button>
-              </div>
-            ) : (
-              steps[current].btnCnt
-            )}
+            {steps[current].btn || steps[current].btnCnt}
           </div>
         </div>
         <div

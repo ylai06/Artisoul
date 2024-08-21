@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Login from "../pages/login";
 import Home from "../pages/home";
 import Account from "../pages/account";
-import ErrorPage from "../pages/error";
 import MintNFT from "../pages/mintNFT";
 import Market from "../pages/marketplace";
 import NFTPage from "../pages/nftPage";
@@ -13,11 +12,15 @@ const basename = process.env.PUBLIC_URL || "/";
 export const globalRouters = createBrowserRouter(
   [
     {
+      path: "/home",
+      element: <Navigate to="/" />,
+    },
+    {
       path: "/login",
       element: <Login />,
     },
     {
-      path: "/home",
+      path: "/",
       element: <Home />,
     },
     {
@@ -41,12 +44,8 @@ export const globalRouters = createBrowserRouter(
       element: <NFTPage />,
     },
     {
-      path: "/",
-      element: <Home />,
-    },
-    {
       path: "*",
-      element: <Navigate to="/" replace/>,
+      element: <Navigate to="/" />,
     },
   ],
   { basename }

@@ -1,0 +1,39 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <https://example.com/>
+
+ex:UserList {
+  <userList> @ex:UserId*
+      // rdfs:label '''userList'''
+      // rdfs:comment '''A list of users identified by their WebIDs.''' ;
+}
+
+ex:UserId {
+  <webID> IRI
+      // rdfs:label '''webID'''
+      // rdfs:comment '''A user's WebID (Web Identifier).''' ;
+}
+
+ex:NFTList {
+  <nftList> @ex:NFTs*  
+      // rdfs:label '''nftList'''
+      // rdfs:comment '''A list of NFTs with their associated metadata.''' ;
+}
+
+ex:NFTs {
+  <nftHash> xsd:string
+      // rdfs:label '''nftHash''' ;
+  <ownedBy> IRI  
+      // rdfs:label '''ownedBy'''
+      // rdfs:comment  '''The NFT is owned by a user (identified by WebID).''' ;
+  <ownedByAddress> xsd:string  
+      // rdfs:label '''ownedByAddress'''
+      // rdfs:comment  '''The NFT is owned by a user (identified by wallet address).''' ;
+  <assetTitle> xsd:string
+      // rdfs:label '''assetTitle'''
+      // rdfs:comment  '''NFT's asset title.''' ;
+  <assetURI> IRI  
+      // rdfs:label '''assetURI'''
+      // rdfs:comment  '''URI pointing to the NFT's asset.''' ;
+}
+

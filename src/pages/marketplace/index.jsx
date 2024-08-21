@@ -97,7 +97,6 @@ const Market = () => {
     );
     //create an NFT Token
     let transaction = await contract.getAllNFTs();
-    console.log("Transaction: ", transaction);
     // Fetch all the details of every NFT from the contract and display
 
     const items = await Promise.all(
@@ -121,7 +120,6 @@ const Market = () => {
   }
 
   useEffect(() => {
-    console.log("useEffect!");
     if (!dataFetched && data === null) {
       console.log("fetching ALL...");
       getAllNFTs();

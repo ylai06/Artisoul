@@ -21,7 +21,7 @@ const UploadImg = () => {
         // Get the root container associated with that WebId
         const rootContainerResult = await webIdResource.getRootContainer();
         // Check if there is an error
-        // console.log("rootContainerResult=>", rootContainerResult);
+        console.log("rootContainerResult=>", rootContainerResult);
         if (rootContainerResult.isError) {
           setIsLoading(false);
           return;
@@ -41,8 +41,8 @@ const UploadImg = () => {
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
-  if (!session.isLoggedIn)
-    return <p>This part is for upload your digital asset. Log in first.</p>;
+  // if (!session.isLoggedIn)
+  //   return <p>This part is for upload your digital asset. Log in first.</p>;
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -50,7 +50,7 @@ const UploadImg = () => {
     <div className="intro-box">
       <SetACL mainContainer={mainContainer} />
       {/* <MyNFT mainContainer={mainContainer} /> */}
-      <CreateNFT mainContainer={mainContainer} />
+      <CreateNFT mainContainer={mainContainer} webID={session.webId} />
     </div>
   );
 };

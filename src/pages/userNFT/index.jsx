@@ -39,8 +39,8 @@ export default function UserNFT() {
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
-  if (!session.isLoggedIn)
-    return <p>This part is for upload your digital asset. Log in first.</p>;
+  // if (!session.isLoggedIn)
+  //   return <p>This part is for upload your digital asset. Log in first.</p>;
 
   return (
     <div>

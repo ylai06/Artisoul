@@ -54,27 +54,15 @@ export const Header = () => {
           <div className="row">
             <div className="col-12">
               <nav className="navbar navbar-expand-md navbar-light">
-                <a className="navbar-brand" href="#" target="_blank">
+                <Link className="navbar-brand" to="/">
                   ArtiSoul
-                </a>
-                <button
-                  className="navbar-toggler"
-                  type="button"
-                  data-toggle="collapse"
-                  data-target="#navbarSupportedContent"
-                  aria-controls="navbarSupportedContent"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation"
-                >
-                  <span className="navbar-toggler-icon"></span>
-                </button>
-
+                </Link>
                 <div
                   className="collapse navbar-collapse justify-content-end"
                   id="navbarSupportedContent"
                 >
                   <ul className="navbar-nav ml-auto py-4 py-md-0">
-                    <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4 active">
+                    {/* <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4 active">
                       <a
                         className="nav-link dropdown-toggle"
                         data-toggle="dropdown"
@@ -99,6 +87,11 @@ export const Header = () => {
                           Another action
                         </a>
                       </div>
+                    </li> */}
+                    <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
+                      <Link className="nav-link" to="/">
+                        Home
+                      </Link>
                     </li>
                     <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
                       <Link className="nav-link" to="/marketplace">
@@ -120,7 +113,7 @@ export const Header = () => {
                         <Link className="nav-link" to="/account">
                           {loggedInName}
                         </Link>
-                      </li> 
+                      </li>
                     ) : (
                       <li className="nav-item pl-4 pl-md-0 ml-0 ml-md-4">
                         <Link to="/login" className="nav-link">

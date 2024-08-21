@@ -6,9 +6,10 @@ import "./sellNFT.scss";
 import { Input, Image } from "antd";
 import { useLdo } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
+import { NFTsShapeType as SysDataNft } from "../../.ldo/sysData.shapeTypes";
 const { TextArea } = Input;
 
-export const CreateNFT = ({ mainContainer }) => {
+export const CreateNFT = ({ mainContainer, webID }) => {
   const [formParams, updateFormParams] = useState({
     name: "",
     description: "",
@@ -18,8 +19,8 @@ export const CreateNFT = ({ mainContainer }) => {
   const [fileURL, setFileURL] = useState(null);
   const ethers = require("ethers");
   const [message, updateMessage] = useState("");
-  const { createData, commitData } = useLdo();
-  const location = useLocation();
+  const { createData, commitData, getResource } = useLdo();
+  const [sysContainer, setSysContainer] = useState(null);
 
   async function disableButton() {
     const listButton = document.getElementById("list-button");
@@ -54,6 +55,7 @@ export const CreateNFT = ({ mainContainer }) => {
     // Get the created container
     const nftContainer = postContainerResult.resource;
     setFileContainer(nftContainer);
+    console.log("NFT Container: ", nftContainer);
 
     // check for file extension
     try {
@@ -115,29 +117,44 @@ export const CreateNFT = ({ mainContainer }) => {
     return fileContainer.uri;
   }
 
+  async function uploadURItoSysSolid(nftData) {
+    const sysData = sysContainer.child(`${v4()}.ttl`);
+    const nft_sysData = createData(SysDataNft, sysData.uri, sysData);
+    nft_sysData.nftHash = nftData.etherscanHash;
+    nft_sysData.ownedBy = nftData.owner;
+    nft_sysData.ownedByAddress = nftData.address;
+    nft_sysData.assetTitle = nftData.title;
+    nft_sysData.assetURI = nftData.URL;
+    const result = await commitData(nft_sysData);
+    if (result.isError) {
+      alert(result.message);
+    }
+    console.log(sysContainer.uri, "; NFT  Metadata: ", result);
+    return sysContainer.uri;
+  }
+
   async function listNFT(e) {
     e.preventDefault();
+    const nftSysData = {
+      etherscanHash: "",
+      owner: "",
+      address: "",
+      title: formParams.name,
+      URL: "",
+    };
 
     //Upload data to Solid pod
     try {
       const metadataURL = await uploadMetadataToSolid();
       if (metadataURL === -1) return;
       //After adding your Hardhat network to your metamask, this code will get providers and signers
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+      const walletAddress = await signer.getAddress();
+
       disableButton();
       updateMessage(
-        "Uploading NFT(takes 5 mins).. please don't click anything!"
-      );
-
-      console.log(
-        "Signer: ",
-        signer,
-        "Marketplace.address: ",
-        Marketplace.address,
-        "Marketplace.abi: ",
-        Marketplace.abi
+        "Uploading NFT(takes approximately 1-2 mins).. please don't click anything!"
       );
 
       //Get the deployed contract instance
@@ -148,8 +165,6 @@ export const CreateNFT = ({ mainContainer }) => {
         signer
       );
 
-      console.log("Contract: ", contract);
-
       //massage the params to be sent to the create NFT request
       const price = ethers.parseUnits(formParams.price, "ether");
       let listingPrice = await contract.getListPrice();
@@ -159,7 +174,14 @@ export const CreateNFT = ({ mainContainer }) => {
       let transaction = await contract.createToken(metadataURL, price, {
         value: listingPrice,
       });
-      await transaction.wait();
+      const receipt = await transaction.wait();
+
+      nftSysData.URL = metadataURL;
+      nftSysData.owner = webID;
+      nftSysData.address = walletAddress;
+      nftSysData.etherscanHash = receipt.hash;
+      const sysURI = await uploadURItoSysSolid(nftSysData);
+      console.log("sysURI=>", sysURI);
 
       alert("Successfully listed your NFT!");
       enableButton();
@@ -173,6 +195,13 @@ export const CreateNFT = ({ mainContainer }) => {
       updateFormParams({ name: "", description: "", price: "" });
     }
   }
+
+  useEffect(() => {
+    const sysID = "https://solidweb.me/NFTsystem/my-solid-app/NFTList/";
+    const sysResource = getResource(sysID);
+    console.log("sysResource=>", sysResource);
+    setSysContainer(sysResource);
+  }, []);
 
   return (
     <div>

@@ -9,6 +9,7 @@
     "@comunica/query-sparql-solid": "^3.1.0",
     "@inrupt/solid-client": "^2.0.1",
     "@inrupt/solid-client-authn-browser": "^2.2.4",
+    "@inrupt/solid-ui-react": "^3.0.0",
     "@inrupt/vocab-common-rdf": "^1.0.5",
     "@ldo/ldo": "^0.0.1-alpha.26",
     "@ldo/solid-react": "^0.0.1-alpha.27",

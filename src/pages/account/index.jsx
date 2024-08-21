@@ -9,7 +9,6 @@ import { useResource, useSolidAuth, useSubject } from "@ldo/solid-react";
 import { changeData, commitData } from "@ldo/solid";
 import "./account.scss";
 import dayjs from "dayjs";
-import { use } from "chai";
 
 function Account() {
   const { session } = useSolidAuth();
