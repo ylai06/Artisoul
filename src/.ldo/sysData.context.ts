@@ -21,23 +21,23 @@ export const sysDataContext: ContextDefinition = {
     "@container": "@set",
   },
   nftHash: {
-    "@id": "https://ldo.js.org/nftHash",
+    "@id": "https://example.com/nftHash",
     "@type": "http://www.w3.org/2001/XMLSchema#string",
   },
   ownedBy: {
-    "@id": "https://ldo.js.org/ownedBy",
+    "@id": "https://example.com/ownedBy",
     "@type": "@id",
   },
   ownedByAddress: {
-    "@id": "https://ldo.js.org/ownedByAddress",
+    "@id": "https://example.com/ownedByAddress",
     "@type": "http://www.w3.org/2001/XMLSchema#string",
   },
   assetTitle: {
-    "@id": "https://ldo.js.org/assetTitle",
+    "@id": "https://example.com/assetTitle",
     "@type": "http://www.w3.org/2001/XMLSchema#string",
   },
   assetURI: {
-    "@id": "https://ldo.js.org/assetURI",
+    "@id": "https://example.com/assetURI",
     "@type": "@id",
   },
 };

@@ -4,9 +4,10 @@ import { useLdo, useResource, useSubject } from "@ldo/solid-react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { WalletContext } from "../../index";
 import { Button, Avatar, Card } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
 import "./card.scss";
 
-export const NFTCard = ({ dataUri, token }) => {
+export const NFTCard = ({ dataUri, token, data }) => {
   const nftIndexUri = dataUri.endsWith("index.ttl")
     ? `${dataUri}`
     : `${dataUri}index.ttl`;
@@ -24,7 +25,8 @@ export const NFTCard = ({ dataUri, token }) => {
   }, [imageResource]);
 
   if (nftResource.status.isError) {
-    return <p>nftResource.status.message</p>;
+    console.log(nftResource.status.message);
+    return <></>;
   }
 
   let newTo;
@@ -36,30 +38,37 @@ export const NFTCard = ({ dataUri, token }) => {
     newTo = nft?.image?.["@id"];
   }
 
-  let walletAddress = "0xC95B52BC6BC70a029DF892C4a9CA029B4eEDc558";
+  const copyToClipboard = (txt) => {
+    const tempInput = document.createElement("input");
+    tempInput.value = txt;
+    document.body.appendChild(tempInput);
 
-  const getOwner = () => {
-    return nft?.owner === walletAddress;
+    tempInput.select();
+    document.execCommand("copy");
+
+    document.body.removeChild(tempInput);
   };
 
   return (
-    <Link to={newTo} className="card">
+    <Link to={newTo} state={{ data }} className="card">
       <Card cover={<img alt="example" src={blobUrl} />} className="exampleNFT">
         <div className="title">
           <h4>{nft.title}</h4>
         </div>
         <div className="creator">
           <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
-          <span className="mt-2">Animakid</span>
+          <span className="mt-2 txt">{nft.owner}</span>
+          {/* <div
+            class="copy-btn"
+            onClick={(e) => {
+              e.stopPropagation(); // 阻止事件冒泡，防止触发 Link 的点击跳转
+              copyToClipboard(nft.owner);
+            }}
+          >
+            <CopyOutlined />
+          </div> */}
         </div>
       </Card>
-      {/* <img src={blobUrl} alt="" className="image" crossOrigin="anonymous" />
-      <div className="text">
-        <strong className="title">{nft.title}</strong>
-        {!getOwner() && <p>owner: {nft.owner}</p>}
-        <p className="description">{nft.description || "no description"}</p>
-        {token && <Button>Details</Button>}
-      </div> */}
     </Link>
   );
 };

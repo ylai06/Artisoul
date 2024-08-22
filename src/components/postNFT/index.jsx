@@ -57,7 +57,8 @@ export const PostNFT = ({ postUri }) => {
   }, [postUri, getResource]);
 
   if (nftResource.status.isError) {
-    return <p>nftResource.status.message</p>;
+    console.log(nftResource.status.message);
+    return <></>;
   }
 
   return (

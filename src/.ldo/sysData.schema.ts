@@ -109,7 +109,7 @@ export const sysDataSchema: Schema = {
           expressions: [
             {
               type: "TripleConstraint",
-              predicate: "https://ldo.js.org/nftHash",
+              predicate: "https://example.com/nftHash",
               valueExpr: {
                 type: "NodeConstraint",
                 datatype: "http://www.w3.org/2001/XMLSchema#string",
@@ -126,7 +126,7 @@ export const sysDataSchema: Schema = {
             },
             {
               type: "TripleConstraint",
-              predicate: "https://ldo.js.org/ownedBy",
+              predicate: "https://example.com/ownedBy",
               valueExpr: {
                 type: "NodeConstraint",
                 nodeKind: "iri",
@@ -150,7 +150,7 @@ export const sysDataSchema: Schema = {
             },
             {
               type: "TripleConstraint",
-              predicate: "https://ldo.js.org/ownedByAddress",
+              predicate: "https://example.com/ownedByAddress",
               valueExpr: {
                 type: "NodeConstraint",
                 datatype: "http://www.w3.org/2001/XMLSchema#string",
@@ -175,7 +175,7 @@ export const sysDataSchema: Schema = {
             },
             {
               type: "TripleConstraint",
-              predicate: "https://ldo.js.org/assetTitle",
+              predicate: "https://example.com/assetTitle",
               valueExpr: {
                 type: "NodeConstraint",
                 datatype: "http://www.w3.org/2001/XMLSchema#string",
@@ -199,7 +199,7 @@ export const sysDataSchema: Schema = {
             },
             {
               type: "TripleConstraint",
-              predicate: "https://ldo.js.org/assetURI",
+              predicate: "https://example.com/assetURI",
               valueExpr: {
                 type: "NodeConstraint",
                 nodeKind: "iri",

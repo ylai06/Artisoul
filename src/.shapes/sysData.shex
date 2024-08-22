@@ -21,18 +21,18 @@ ex:NFTList {
 }
 
 ex:NFTs {
-  <nftHash> xsd:string
+  ex:nftHash xsd:string
       // rdfs:label '''nftHash''' ;
-  <ownedBy> IRI  
+  ex:ownedBy IRI  
       // rdfs:label '''ownedBy'''
       // rdfs:comment  '''The NFT is owned by a user (identified by WebID).''' ;
-  <ownedByAddress> xsd:string  
+  ex:ownedByAddress xsd:string  
       // rdfs:label '''ownedByAddress'''
       // rdfs:comment  '''The NFT is owned by a user (identified by wallet address).''' ;
-  <assetTitle> xsd:string
+  ex:assetTitle xsd:string
       // rdfs:label '''assetTitle'''
       // rdfs:comment  '''NFT's asset title.''' ;
-  <assetURI> IRI  
+  ex:assetURI IRI  
       // rdfs:label '''assetURI'''
       // rdfs:comment  '''URI pointing to the NFT's asset.''' ;
 }

@@ -14,6 +14,8 @@ function Account() {
   const { session } = useSolidAuth();
   const resource = useResource(session.webId);
   const profile = useSubject(SolidProfileShapeShapeType, session.webId);
+  console.log("resource=>", resource);
+  console.log("profile=>", profile);
 
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

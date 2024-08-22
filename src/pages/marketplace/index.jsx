@@ -6,7 +6,6 @@ import { NFTCard } from "../../components/card";
 import { SearchOutlined } from "@ant-design/icons";
 import "./market.scss";
 import { useResource } from "@ldo/solid-react";
-import { NFTsShapeType } from "../../.ldo/sysData.shapeTypes";
 
 const Market = () => {
   const [data, setData] = useState(null);
@@ -15,21 +14,26 @@ const Market = () => {
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
   const searchResult = document.getElementById("searchResult");
-  const [pointerPods, setPointerPods] = useState([]);
+  const [pointerPods, setPointerPods] = useState({});
+  const [respods, setRespods] = useState([]);
+  const [loading, setLoading] = useState(true); 
   const resource = useResource(
     "https://solidweb.me/NFTsystem/my-solid-app/NFTList/"
   );
 
   async function getPodUri(respods) {
-    let podList = [];
+    let podList = new Map();
     if (respods != []) {
       const myEngine = new QueryEngine();
       const bindingsStream = await myEngine.queryBindings(
         `
         PREFIX ldo: <https://ldo.js.org/>
+        PREFIX ex: <https://example.com/>
         SELECT ?nft ?assetURI
         WHERE {
-          ?nft ldo:assetURI ?assetURI;
+          {?nft ldo:assetURI ?assetURI;}
+          UNION
+          {?nft ex:assetURI ?assetURI.}
         }
         `,
         {
@@ -39,10 +43,9 @@ const Market = () => {
       );
       return new Promise((resolve, reject) => {
         bindingsStream.on("data", (binding) => {
-          podList.push(binding.get("assetURI").value);
+          podList.set(binding.get("assetURI").value, binding.get("nft").value);
         });
         bindingsStream.on("end", () => {
-          console.log("Query execution completed.");
           resolve(podList);
         });
         bindingsStream.on("error", (error) => {
@@ -54,6 +57,10 @@ const Market = () => {
   }
 
   async function searchNFTs() {
+    if (!pointerPods) {
+      return;
+    }
+    let keys = [...pointerPods.keys()];
     const returnValue = [];
     searchResult.innerText = "Searching...";
     if (searchValue) {
@@ -74,7 +81,7 @@ const Market = () => {
           }`,
           {
             // Sources field is optional. Will be derived from query if not provided.
-            sources: pointerPods, // Sets your profile as query source
+            sources: keys, // Sets your profile as query source
             // Session is optional for authenticated requests
             //'@comunica/actor-http-inrupt-solid-client-authn:session': session,
             // The lenient flag will make the engine not crash on invalid documents
@@ -85,9 +92,7 @@ const Market = () => {
           returnValue.push({
             tokenURI: binding.get("nft").value,
             title: binding.get("title").value,
-            description: binding.get("description").value,
             image: binding.get("image").value,
-            creator: binding.get("creator").value,
             owner: binding.get("owner").value,
             uploadDate: binding.get("uploadDate").value,
           });
@@ -145,30 +150,50 @@ const Market = () => {
         return item;
       })
     );
-    console.log("Items: ", items);
     setFetched(true);
     setData(items);
   }
 
   useEffect(() => {
-    const getPods = async () => {
-      let respods = [];
-      resource?.children().map((child) => respods.push(child.uri));
-      const searchPods = await getPodUri(respods);
-      console.log("searchPods:", searchPods);
-      setPointerPods(searchPods);
+    //Define an asynchronous function to handle resource loading
+    const fetchResource = async () => {
+      if (resource) {
+        // Wait for the resource to be loaded before processing the child item
+        const children = resource.children();
+        const podUris = children.map((child) => child.uri);
+
+        setRespods(podUris);
+        setLoading(false);
+      }
     };
 
-    getPods();
-  }, []);
+    fetchResource(); //Call asynchronous function
+  }, [resource]); // Re-executed when resource changes
+
+  useEffect(() => {
+    // Wait for respods to be loaded and perform subsequent operations.
+    const getPods = async () => {
+      if (respods.length > 0) {
+        const searchPods = await getPodUri(respods);
+        setPointerPods(searchPods);
+      }
+    };
+    if (!loading) {
+      getPods(); // Only called after respods are loaded
+    }
+  }, [respods, loading]); // Re-execute when respods or loading state changes
 
   useEffect(() => {
     if (!dataFetched && data === null) {
       console.log("fetching ALL...");
       getAllNFTs();
     } else if (!dataFetched) {
-      console.log("fetching search...");
-      searchNFTs();
+      if (searchValue.trim() === "") {
+        getAllNFTs();
+      } else {
+        console.log("fetching search...");
+        searchNFTs();
+      }
     }
   }, [dataFetched, data]);
 
@@ -185,6 +210,7 @@ const Market = () => {
             id="searchInput"
             placeholder="Search your favourite NFTs..."
             onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
           />
           <div onClick={() => setFetched(false)} className="search-icon">
             <SearchOutlined />
@@ -193,13 +219,20 @@ const Market = () => {
         <p id="searchResult"></p>
       </div>
       <div className="nft-list">
-        {data === null ? (
+        {data === null || loading ? (
           <p>loading.....</p>
         ) : (
           data.map((item, index) => {
             return (
               <div key={index}>
-                <NFTCard dataUri={item.tokenURI} token={item.tokenId} />
+                <NFTCard
+                  dataUri={item.tokenURI}
+                  token={item.tokenId}
+                  data={{
+                    sysPodUri: pointerPods.get(item.tokenURI),
+                    uri: item.tokenURI,
+                  }}
+                />
               </div>
             );
           })

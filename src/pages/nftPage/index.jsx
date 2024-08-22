@@ -6,17 +6,22 @@ import {
   useResource,
   useSubject,
   useSolidAuth,
+  deleteResource,
 } from "@ldo/solid-react";
+import { getSolidDataset } from "@inrupt/solid-client";
+import { commitData } from "@ldo/solid";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { Header } from "../../components/header";
-import { Button, Image } from "antd";
+import { Image } from "antd";
 import { v4 } from "uuid";
 import dayjs from "dayjs";
 import "./style.scss";
+import { deleteRecursively } from "../../api/aclControl";
+import { QueryEngine } from "@comunica/query-sparql-solid";
 
 function NFTPage() {
-  const { session } = useSolidAuth();
-  const { getResource, createData, commitData } = useLdo();
+  const { session, fetch } = useSolidAuth();
+  const { getResource, createData } = useLdo();
   const [data, setData] = useState({});
   const [dataFetched, setDataFetched] = useState(false);
   const [message, setMessage] = useState("");
@@ -25,6 +30,7 @@ function NFTPage() {
   const [fileURL, setFileURL] = useState(null);
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
+  let { state } = useLocation();
 
   const getNFTData = async (tokenId) => {
     const signer = await provider.getSigner();
@@ -55,7 +61,53 @@ function NFTPage() {
     setCurrAddress(addr);
   };
 
-  const transferNFT = async (data) => {
+  const updateSysPod = async (newDataOwner) => {
+    const myEngine = new QueryEngine();
+    try {
+      await myEngine.queryVoid(
+        `
+        PREFIX ex: <https://example.com/>
+        DELETE {
+          ?nft ex:ownedBy ?oldOwner;
+               ex:ownedByAddress ?oldOwnerAddress;
+               ex:assetURI ?oldAssetUri.
+        }
+        INSERT {
+          ?nft ex:ownedBy "${session.webId}";
+               ex:ownedByAddress "${newDataOwner}";
+               ex:assetURI "${fileURL}".
+        }
+        WHERE {
+          ?nft ex:ownedBy ?oldOwner;
+               ex:ownedByAddress ?oldOwnerAddress;
+               ex:assetURI ?oldAssetUri.
+        }
+        `,
+        {
+          sources: [state.data.sysPodUri],
+          lenient: true,
+        }
+      );
+      console.log("Update execution completed.");
+    } catch (error) {
+      console.error("Error in update process:", error);
+    }
+    // const cSysData = changeData(sysNFT, sysResource);
+    // cSysData.ownedBy = session.webId;
+    // cSysData.ownedByAddress = newDataOwner;
+    // cSysData.assetURI = fileURL;
+    // if (cSysData.assetTitle) {
+    //   delete cSysData.assetTitle;
+    // }
+    // cSysData.assetTitle = "testData";
+    // try {
+    //   await commitData(cSysData);
+    // } catch (e) {
+    //   alert("Error update data:", e);
+    // }
+  };
+
+  const createNewPod = async (data) => {
     if (!session.webId) return;
     const webIdResource = getResource(session.webId);
     const rootContainerResult = await webIdResource.getRootContainer();
@@ -65,7 +117,6 @@ function NFTPage() {
       type: data.filetype,
       lastModified: Date.now(),
     });
-    console.log("file:", file);
 
     // Create the main container if it doesn't exist yet
     await mainContainer.createIfAbsent();
@@ -101,7 +152,7 @@ function NFTPage() {
       assetUri = response.resource.uri;
 
       console.log(
-        "Uploaded image to your Solid pod success: ",
+        "Successfully uploaded image to buyer's Solid pod: ",
         response.resource.uri
       );
       setFileURL(response.resource.uri);
@@ -132,48 +183,69 @@ function NFTPage() {
     return newNftContainer.uri;
   };
 
+  const deleteOriginalPod = async (delUri) => {
+    try {
+      const dataset = await getSolidDataset(`${delUri}`, {
+        fetch: fetch,
+      });
+      // delete index.ttl and image in the folder
+      deleteRecursively(dataset, {
+        fetch: fetch,
+      });
+    } catch (e) {
+      // delete the folder
+      try {
+        await deleteResource(delUri);
+        console.log("delFolder=>", delUri);
+      } catch (err) {
+        console.log("delFolderError=>", err);
+        return;
+      }
+    }
+  };
+
   const buyNFT = async (data) => {
-    const uploadDate = new Date().toISOString();
-    const newDataUri = transferNFT(data);
+    console.log("Buying NFT: ", data);
     // 1. 交易，更新 NFT 的 metadata
     // 2. 成功後，刪除原本的 NFT metadata container
     // 同時更新 Marketplace pod 中的 NFT 資料
     // 3. 如失敗，刪除新的 NFT metadata container
+    try {
+      const ethers = require("ethers");
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      let contract = new ethers.Contract(
+        Marketplace.address,
+        Marketplace.abi,
+        signer
+      );
+      console.log("contract: ", contract);
+      setMessage("Buying NFT..., please wait up to 5 minutes.");
+      const ethPrice = ethers.parseUnits(data.price, "ether");
+      console.log("ethPrice", ethPrice);
+      let nftTxn = await contract.executeSale(data.tokenId, {
+        value: ethPrice,
+      });
+      await nftTxn.wait();
 
-    // try {
-    //   const ethers = require("ethers");
-    //   const provider = new ethers.BrowserProvider(window.ethereum);
-    //   const signer = await provider.getSigner();
-    //   let contract = new ethers.Contract(
-    //     Marketplace.address,
-    //     Marketplace.abi,
-    //     signer
-    //   );
-    //   console.log("contract: ", contract);
+      createNewPod(data);
+      deleteOriginalPod(data.dataUri);
+      updateSysPod(signer.address);
 
-    //   setMessage("Buying NFT..., please wait up to 5 minutes.");
-
-    //   const ethPrice = ethers.parseUnits(tradeData.price, "ether");
-
-    //   console.log("ethPrice", ethPrice);
-
-    //   let nftTxn = await contract.executeSale(tradeData.tokenId, {
-    //     value: ethPrice,
-    //   });
-    //   await nftTxn.wait();
-
-    //   console.log("contract details: ", nftTxn);
-    //   setMessage(
-    //     `You successfully bought the NFT! Check it out at: https://sepolia.etherscan.io/tx/${nftTxn.hash}`
-    //   );
-    // } catch (e) {
-    //   console.error("Error buying NFT: ", e);
-    //   setMessage("Error buying NFT, ", e);
-    // }
+      console.log("contract details: ", nftTxn);
+      setMessage(
+        `You successfully bought the NFT! Check it out at: https://sepolia.etherscan.io/tx/${nftTxn.hash}`
+      );
+    } catch (e) {
+      console.error("Error buying NFT: ", e);
+      setMessage("Error buying NFT, ", e);
+    }
   };
 
   const MetaInfo = ({ dataUri, contractInfo, currAddress }) => {
-    const nftIndexUri = `${dataUri}index.ttl`;
+    const nftIndexUri = dataUri.endsWith("/index.ttl")
+      ? dataUri
+      : `${dataUri}index.ttl`;
     const nftResource = useResource(nftIndexUri);
     const nft = useSubject(NFTShape, nftIndexUri);
     const imageResource = useResource(nft?.image?.["@id"]);
@@ -187,7 +259,8 @@ function NFTPage() {
     }, [imageResource]);
 
     if (nftResource.status.isError) {
-      return <p>nftResource.status.message</p>;
+      console.log("error: ", nftResource.status.message);
+      return <></>;
     }
 
     const tradeData = {
@@ -200,6 +273,7 @@ function NFTPage() {
       blob: imageResource.getBlob(),
       filetype: imageResource.getBlob().type,
       imgUri,
+      dataUri,
     };
 
     return (
@@ -209,32 +283,28 @@ function NFTPage() {
         </div>
         <div className="nft-info">
           <h1>{nft.title}</h1>
-          <p>
+          <div>
             <p className="hint">Token ID </p>
             {contractInfo.tokenId}
-          </p>
-          <p>
+          </div>
+          <div>
             <p className="hint">Description </p>
             {nft.description}
-          </p>
-          <p>
+          </div>
+          <div>
             <p className="hint">Price </p>
             {contractInfo.price} ETH
-          </p>
-          <p>
+          </div>
+          <div>
             <p className="hint">Create Date </p>
             {dayjs(nft.uploadDate).format("YYYY/MM/DD")}
-          </p>
+          </div>
           {currAddress !== contractInfo.owner &&
           currAddress !== contractInfo.seller ? (
             <div>
               <p className="hint">Owned by</p>
               {currAddress}
-              <button
-                onClick={() => buyNFT(tradeData)}
-              >
-                Buy this NFT
-              </button>
+              <button onClick={() => buyNFT(tradeData)}>Buy this NFT</button>
             </div>
           ) : (
             <p className="hint">You are the owner of this NFT</p>
@@ -267,7 +337,7 @@ function NFTPage() {
         ) : (
           <p>Loading...</p>
         )}
-        <p>{message}</p>
+        <p className="hint msg">{message}</p>
       </div>
     </div>
   );
