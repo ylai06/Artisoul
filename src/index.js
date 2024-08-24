@@ -1,7 +1,6 @@
 import React, { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { SessionProvider } from "@inrupt/solid-ui-react";
 import { globalRouters } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";
 import "bootstrap/dist/css/bootstrap.css";
@@ -18,11 +17,9 @@ const AppWrapper = () => {
 
   return (
     <BrowserSolidLdoProvider>
-      <SessionProvider>
-        <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
-          <RouterProvider router={globalRouters}></RouterProvider>
-        </WalletContext.Provider>
-      </SessionProvider>
+      <WalletContext.Provider value={{ walletDetails, setWalletDetails }}>
+        <RouterProvider router={globalRouters}></RouterProvider>
+      </WalletContext.Provider>
     </BrowserSolidLdoProvider>
   );
 };
