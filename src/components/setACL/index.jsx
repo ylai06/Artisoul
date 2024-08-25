@@ -34,7 +34,6 @@ export const SetACL = ({ mainContainer }) => {
   const { fetch } = useSolidAuth();
   const [publicAccess, setPublicAccess] = useState([]);
   const [agentAccess, setAgentAccess] = useState([]);
-  const userPod = process.env.REACT_APP_USER_POD_LIST.split(",");
 
   const agentWebId = "https://solidweb.me/NFTsystem/profile/card#me"; // userPod[0]
 
