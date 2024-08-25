@@ -1,4 +1,4 @@
-import { createHashRouter,, Navigate } from "react-router-dom";
+import { createHashRouter, Navigate } from "react-router-dom";
 import Login from "../pages/login";
 import Home from "../pages/home";
 import Account from "../pages/account";
@@ -7,7 +7,7 @@ import Market from "../pages/marketplace";
 import NFTPage from "../pages/nftPage";
 import UserNFT from "../pages/userNFT";
 
-const basename = process.env.PUBLIC_URL || "/";
+const basename = process.env.NODE_ENV === 'production' ? "/Artisoul" : "";
 
 export const globalRouters = createHashRouter(
   [
