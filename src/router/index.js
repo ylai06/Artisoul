@@ -47,6 +47,5 @@ export const globalRouters = createHashRouter(
       path: "*",
       element: <Navigate to="/" />,
     },
-  ],
-  { basename }
+  ]
 );
