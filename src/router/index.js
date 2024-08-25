@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createHashRouter,, Navigate } from "react-router-dom";
 import Login from "../pages/login";
 import Home from "../pages/home";
 import Account from "../pages/account";
@@ -9,7 +9,7 @@ import UserNFT from "../pages/userNFT";
 
 const basename = process.env.PUBLIC_URL || "/";
 
-export const globalRouters = createBrowserRouter(
+export const globalRouters = createHashRouter(
   [
     {
       path: "/home",

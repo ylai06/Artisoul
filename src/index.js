@@ -24,5 +24,4 @@ const AppWrapper = () => {
   );
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<AppWrapper />);
+ReactDOM.createRoot(document.getElementById("root")).render(<AppWrapper />);
