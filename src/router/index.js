@@ -7,7 +7,8 @@ import Market from "../pages/marketplace";
 import NFTPage from "../pages/nftPage";
 import UserNFT from "../pages/userNFT";
 
-const basename = process.env.NODE_ENV === 'production' ? "/Artisoul" : "";
+// const basename = process.env.NODE_ENV === 'production' ? "/Artisoul" : "";
+const basename = "/Artisoul";
 
 export const globalRouters = createHashRouter(
   [
