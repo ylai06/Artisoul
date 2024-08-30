@@ -1,6 +1,6 @@
 import React, { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 // import { globalRouters } from "./router";
 import { RouterSwitcher } from "./router";
 import { BrowserSolidLdoProvider } from "@ldo/solid-react";

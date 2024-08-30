@@ -46,6 +46,7 @@ function Callback() {
   useEffect(() => {
     async function completeLogin() {
       const res = await handleIncomingRedirect();
+      console.log("res", res);
       if (!res.isLoggedIn) {
         window.location.href = "/login";
       }

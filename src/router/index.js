@@ -50,7 +50,7 @@
 //   // },
 // ]);
 
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/login";
 import Home from "../pages/home";
@@ -73,9 +73,12 @@ export function RouterSwitcher() {
     isCallbackRoute,
     !walletDetails.walletLogin
   );
+
+  const basename = process.env.NODE_ENV === "development" ? "/" : "/Artisoul";
+  console.log("basename in router:", basename);
   if (isCallbackRoute && !walletDetails.walletLogin) {
     return (
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/callback" element={<Callback />} />
         </Routes>
@@ -88,7 +91,6 @@ export function RouterSwitcher() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/callback" element={<Callback />} />
         <Route path="/account" element={<Account />} />
         <Route path="/mintNFT" element={<MintNFT />} />
         <Route path="/myNFT" element={<UserNFT />} />

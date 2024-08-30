@@ -158,31 +158,14 @@ function Login() {
             className="pod-url"
           />
           <button
-            // onClick={async (e) => {
-            //   e.preventDefault();
-            //   const issuer = document.getElementById("url").value;
-            //   const url = new URL(window.location.href);
-            //   // 提取出基礎的路徑和查詢字符串的問號 '?'
-            //   const baseUrl = `${url.origin}${url.pathname}`;
-            //   if (!issuer) return;
-            //   if (!getDefaultSession().info.isLoggedIn) {
-            //     try {
-            //       // 假設 login 是一個異步函數
-            //       await login({
-            //         oidcIssuer: issuer,
-            //         redirectUrl: baseUrl,
-            //         clientName: "Artisoul",
-            //       });
-            //     } catch (error) {
-            //       errorMsg("Login failed!");
-            //     }
-            //   }
-            // }}
             onClick={async (e) => {
               e.preventDefault();
               const issuer = document.getElementById("url").value;
               if (!issuer) return;
-              console.log("env:", process.env.NODE_ENV);
+              console.log(
+                "env:",
+                new URL(`/#/callback`, window.location.href).toString()
+              );
               if (!getDefaultSession().info.isLoggedIn) {
                 try {
                   await login({
@@ -195,6 +178,7 @@ function Login() {
                   });
                 } catch (error) {
                   errorMsg("Login failed!");
+                  console.log("login error=>", error);
                 }
               }
             }}
@@ -347,7 +331,6 @@ function Login() {
     }
     completeLogin();
   }, []);
-
 
   return (
     <div className="p-login">
