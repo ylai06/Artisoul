@@ -66,7 +66,13 @@ export function RouterSwitcher() {
   const { walletDetails } = useContext(WalletContext);
   console.log("walletDetails in router:", walletDetails);
 
-  const isCallbackRoute = window.location.pathname.startsWith("/callback");
+  const basename = process.env.NODE_ENV === "development" ? "/" : "/Artisoul";
+  console.log("basename in router:", basename);
+
+  const isCallbackRoute =
+    process.env.NODE_ENV === "development"
+      ? window.location.pathname.startsWith("/callback")
+      : window.location.pathname.startsWith("/Artisoul/callback");
 
   console.log(
     "isCallbackRoute in router:",
@@ -74,8 +80,6 @@ export function RouterSwitcher() {
     !walletDetails.walletLogin
   );
 
-  const basename = process.env.NODE_ENV === "development" ? "/" : "/Artisoul";
-  console.log("basename in router:", basename);
   if (isCallbackRoute && !walletDetails.walletLogin) {
     return (
       <BrowserRouter basename={basename}>

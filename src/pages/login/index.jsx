@@ -162,7 +162,8 @@ function Login() {
               e.preventDefault();
               const issuer = document.getElementById("url").value;
               if (!issuer) return;
-              const basename = process.env.NODE_ENV === "" ? "/" : "/Artisoul";
+              const basename =
+                process.env.NODE_ENV === "development" ? "" : "/Artisoul";
               if (!getDefaultSession().info.isLoggedIn) {
                 try {
                   await login({
