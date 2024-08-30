@@ -1,8 +1,8 @@
 import { useLdo, useResource, useSolidAuth } from "@ldo/solid-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { SetACL } from "../../components/setACL";
 import { Header } from "../../components/header";
-import { CreateNFT } from "../../components/createNFT";
+import { WalletContext } from "../../index";
 import { MyNFT } from "../../components/myNFT";
 import "./userNFT.scss";
 
@@ -10,17 +10,16 @@ export default function UserNFT() {
   const { session } = useSolidAuth();
   const { getResource } = useLdo();
   const [mainContainerUri, setMainContainerUri] = useState(null);
+  const { walletDetails } = useContext(WalletContext);
 
   useEffect(() => {
     const fetchData = async () => {
       if (session.webId) {
         // Get the WebId resource
         const webIdResource = getResource(session.webId);
-        // console.log("webIdResource=>", webIdResource);
         // Get the root container associated with that WebId
         const rootContainerResult = await webIdResource.getRootContainer();
         // Check if there is an error
-        // console.log("rootContainerResult=>", rootContainerResult);
         if (rootContainerResult.isError) {
           return;
         }
@@ -39,9 +38,6 @@ export default function UserNFT() {
 
   useEffect(() => {}, [mainContainer, mainContainerUri]);
 
-  // if (!session.isLoggedIn)
-  //   return <p>This part is for upload your digital asset. Log in first.</p>;
-
   return (
     <div>
       <Header />
@@ -49,9 +45,9 @@ export default function UserNFT() {
         <h1>Wallet Details</h1>
         <div className="wallet">
           <p className="title">Wallet Address</p>
-          <p className="walletInfo">{session.webId}</p>
+          <p className="walletInfo">{walletDetails.walletAddress}</p>
           <p className="title">Wallet Balance</p>
-          <p className="walletInfo">0 ETH</p>
+          <p className="walletInfo">{walletDetails.walletBalance} ETH</p>
         </div>
         <h2>{userName + "'s" && "My"} NFTs</h2>
         <MyNFT mainContainer={mainContainer} />

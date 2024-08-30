@@ -23,6 +23,7 @@ import {
   getResourceAcl,
   getSolidDataset,
 } from "@inrupt/solid-client";
+import { useSolidAuth } from "@ldo/solid-react";
 import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
 import { Link, Navigate } from "react-router-dom";
 import { ethers } from "ethers";
@@ -55,6 +56,7 @@ function Login() {
     control: false,
     origin: "",
   });
+  const { session } = useSolidAuth();
 
   const errorMsg = (msg) => {
     messageApi.open({
@@ -156,19 +158,39 @@ function Login() {
             className="pod-url"
           />
           <button
+            // onClick={async (e) => {
+            //   e.preventDefault();
+            //   const issuer = document.getElementById("url").value;
+            //   const url = new URL(window.location.href);
+            //   // 提取出基礎的路徑和查詢字符串的問號 '?'
+            //   const baseUrl = `${url.origin}${url.pathname}`;
+            //   if (!issuer) return;
+            //   if (!getDefaultSession().info.isLoggedIn) {
+            //     try {
+            //       // 假設 login 是一個異步函數
+            //       await login({
+            //         oidcIssuer: issuer,
+            //         redirectUrl: baseUrl,
+            //         clientName: "Artisoul",
+            //       });
+            //     } catch (error) {
+            //       errorMsg("Login failed!");
+            //     }
+            //   }
+            // }}
             onClick={async (e) => {
               e.preventDefault();
               const issuer = document.getElementById("url").value;
-              const url = new URL(window.location.href);
-              // 提取出基礎的路徑和查詢字符串的問號 '?'
-              const baseUrl = `${url.origin}${url.pathname}`;
               if (!issuer) return;
+              console.log("env:", process.env.NODE_ENV);
               if (!getDefaultSession().info.isLoggedIn) {
                 try {
-                  // 假設 login 是一個異步函數
                   await login({
                     oidcIssuer: issuer,
-                    redirectUrl: baseUrl,
+                    redirectUrl: new URL(
+                      `/callback`,
+                      window.location.href
+                    ).toString(),
                     clientName: "Artisoul",
                   });
                 } catch (error) {
@@ -245,11 +267,6 @@ function Login() {
 
     const aclUri = res.wacUri;
 
-    // const res1 = await getWacRuleWithAclUri(res.wacUri, { fetch: fetch });
-    // if (!res1.isError) {
-    //   console.log("wacRule=>", res1);
-    // }
-
     const containerUrl = podUri;
     const datasetWithAcl = await getSolidDatasetWithAcl(containerUrl, {
       fetch: fetch,
@@ -314,31 +331,23 @@ function Login() {
     console.log("resourceAcl ori=>", resourceAcl);
   };
 
-  async function completeLogin() {
-    console.log("Completing login process");
-    await handleIncomingRedirect();
-  }
-
   useEffect(() => {
-    completeLogin();
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    const state = urlParams.get("state");
-    if (current === 0) {
-      if (code && state) {
-        setCurrent(1); // 在登录流程完成后设置状态
+    async function completeLogin() {
+      try {
+        console.log(
+          "/login getDefaultSession()",
+          getDefaultSession().info.isLoggedIn
+        );
+        if (getDefaultSession().info.isLoggedIn) {
+          setCurrent(2); // 登录成功后设置为下一步
+        }
+      } catch (error) {
+        errorMsg("Failed to complete login process.");
       }
     }
+    completeLogin();
   }, []);
 
-  useEffect(() => {
-    if (connected) {
-      console.log("Connect wallet process completed successfully");
-      setTimeout(() => {
-        setCurrent(2);
-      }, 3 * 1000);
-    }
-  }, [connected]);
 
   return (
     <div className="p-login">
