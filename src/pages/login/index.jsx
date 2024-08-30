@@ -162,16 +162,13 @@ function Login() {
               e.preventDefault();
               const issuer = document.getElementById("url").value;
               if (!issuer) return;
-              console.log(
-                "env:",
-                new URL(`/#/callback`, window.location.href).toString()
-              );
+              const basename = process.env.NODE_ENV === "" ? "/" : "/Artisoul";
               if (!getDefaultSession().info.isLoggedIn) {
                 try {
                   await login({
                     oidcIssuer: issuer,
                     redirectUrl: new URL(
-                      `/callback`,
+                      `${basename}/callback`,
                       window.location.href
                     ).toString(),
                     clientName: "Artisoul",
