@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import { NFTShapeShapeType as NFTShape } from "../../.ldo/nftMetadata.shapeTypes";
 import { useSolidAuth, useLdo } from "@ldo/solid-react";
 import { getWacUri, deleteResource, readResource } from "@ldo/solid";
@@ -22,6 +22,7 @@ import {
   getResourceAcl,
   getSolidDataset,
 } from "@inrupt/solid-client";
+import { WalletContext } from "../../index";
 import { setWacRuleForAclUriWithOri } from "../../wac/setWacRule";
 import { deleteRecursively } from "../../api/aclControl";
 import "./setACL.scss";
@@ -34,10 +35,15 @@ export const SetACL = ({ mainContainer }) => {
   const { fetch } = useSolidAuth();
   const [publicAccess, setPublicAccess] = useState([]);
   const [agentAccess, setAgentAccess] = useState([]);
+  const { walletDetails } = useContext(WalletContext);
 
-  const agentWebId = "https://solidweb.me/NFTsystem/profile/card#me"; // userPod[0]
+  // console.log("userPod", userPod);
+  const agentWebId = [
+    "https://solidweb.me/NFTsystem/profile/card#me",
+    "https://solidweb.me/NFTsystem2/profile/card#me",
+  ]; // userPod[0]
 
-  // 查看公共訪問權限
+  // Check public access
   const onGetPublic = useCallback(async () => {
     if (!mainContainer) return;
     const myContainerUrl = mainContainer.uri;
@@ -49,9 +55,10 @@ export const SetACL = ({ mainContainer }) => {
       (key) => publicAccess[key] === true
     );
     setPublicAccess(result);
+    console.log("publicAccess=>", result);
   }, [mainContainer]);
 
-  // 設定公共訪問權限當前文件夾以及子資源（首次登入）
+  // Set public access permissions for the current folder and sub-resources (first time login
   const onSetPublic = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -90,7 +97,7 @@ export const SetACL = ({ mainContainer }) => {
     onGetPublic();
   }, []);
 
-  // 設定子資源公共訪問權限
+  // Set public access permissions for sub-resources
   const onSetResourcePublic = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -117,7 +124,7 @@ export const SetACL = ({ mainContainer }) => {
     console.log("Set public Access=>", updatedAcl);
   }, []);
 
-  // 設定當前資源以及子資源公共訪問權限
+  // Set public access permissions for current resources and sub-resources
   const onSetPublicLDO = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -150,7 +157,7 @@ export const SetACL = ({ mainContainer }) => {
     onGetAgent();
   }, []);
 
-  // 查看Agent訪問權限
+  // Check Agent access permissions
   const onGetAgent = useCallback(async () => {
     if (!mainContainer) return;
     const myContainerUrl = mainContainer.uri;
@@ -160,9 +167,10 @@ export const SetACL = ({ mainContainer }) => {
     const access = getAgentAccess(myDatasetWithAcl, agentWebId);
     const result = Object.keys(access).filter((key) => access[key] === true);
     setAgentAccess(result);
+    console.log("agentAccess=>", result);
   }, []);
 
-  // 設定Agent訪問權限
+  // Set Agent access permissions
   const onSetAgent = useCallback(async (e) => {
     e.preventDefault();
     if (!mainContainer) return;
@@ -171,7 +179,10 @@ export const SetACL = ({ mainContainer }) => {
     const aclUri = mainContainer.child(".acl").uri;
     const res = await getWacUri(mainContainer.uri);
 
-    const originURL = "https://penny.vincenttunru.com";
+    const originURL =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://ylai06.github.io/Artisoul/";
 
     let newRule = {
       public: {
@@ -184,7 +195,7 @@ export const SetACL = ({ mainContainer }) => {
         read: true,
         append: true,
         write: true,
-        control: false,
+        control: true,
       },
       agent: {
         [agentWebId]: {
@@ -192,7 +203,7 @@ export const SetACL = ({ mainContainer }) => {
           append: true,
           write: true,
           control: true,
-          origin: originURL,
+          // origin: originURL,
         },
       },
     };
@@ -270,8 +281,8 @@ export const SetACL = ({ mainContainer }) => {
       // nft_metadata.type = { "@id": "SocialMediaPosting" };
       // Add an upload date
       nft_metadata.title = "NFT-test";
-      nft_metadata.creator = "0xC95B52BC6BC70a029DF892C4a9CA029B4eEDc558";
-      nft_metadata.owner = "0xC95B52BC6BC70a029DF892C4a9CA029B4eEDc558";
+      nft_metadata.creator = walletDetails.walletAddress;
+      nft_metadata.owner = walletDetails.walletAddress;
 
       nft_metadata.uploadDate = new Date().toISOString();
       // The commitData function handles sending the data to the Pod.
@@ -285,8 +296,8 @@ export const SetACL = ({ mainContainer }) => {
 
   const deleteSource = [
     "",
-    // <------ 這裡是要刪除的資料和資料夾
-    // <------ 這裡是要刪除的資料夾
+    // <------Here are the data and folders to be deleted
+    // <------Here is the folder to be deleted
   ];
 
   const buyerWebId = "https://solidweb.org/profile/card#me";
@@ -335,6 +346,10 @@ export const SetACL = ({ mainContainer }) => {
       }
       setDeleteState(false);
     }
+    // if (publicAccess || agentAccess) {
+    //   console.log("publicAccess=>", publicAccess);
+    //   console.log("agentAccess=>", agentAccess);
+    // }
   }, [deleteState, publicAccess, agentAccess]);
 
   useEffect(() => {
@@ -342,26 +357,7 @@ export const SetACL = ({ mainContainer }) => {
     if (onGetAgent) onGetAgent();
   }, [onGetPublic, onGetAgent]);
 
-  const optionsPublic = [
-    {
-      label: "read",
-      value: "read",
-    },
-    {
-      label: "write",
-      value: "write",
-    },
-    {
-      label: "append",
-      value: "append",
-    },
-    {
-      label: "control",
-      value: "control",
-    },
-  ];
-
-  const optionsAgent = [
+  const options = [
     {
       label: "read",
       value: "read",
@@ -400,19 +396,19 @@ export const SetACL = ({ mainContainer }) => {
         access to your data.
       </p>
       <Checkbox.Group
-        options={optionsPublic}
+        options={options}
         disabled
         value={publicAccess}
         className="checkbox"
       />
-      <h4>Access control list for agent</h4>
+      <h4>Access control list for buyer</h4>
       <p className="hint">
-        *Additionally, when a user purchases the NFT, the buyer will become an
-        agent with the right to transfer the NFT's data to their own Solid POD.
-        This permission will be granted as part of the post-purchase process.
+        *Additionally, when a user purchases your NFT, the buyer will have the
+        right to transfer the NFT's data to their own Solid POD. This permission
+        will be granted as part of the post-purchase process.
       </p>
       <Checkbox.Group
-        options={optionsAgent}
+        options={options}
         disabled
         value={agentAccess}
         className="checkbox"

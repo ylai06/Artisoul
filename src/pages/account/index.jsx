@@ -1,6 +1,6 @@
 import { Button, Modal, Input, Spin, DatePicker } from "antd";
 import { Header } from "../../components/header";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import sunset from "../../img/nft/sunset.jpg";
 import avatarImg from "../../img/nft/avaExample.jpg";
@@ -9,9 +9,11 @@ import { useResource, useSolidAuth, useSubject } from "@ldo/solid-react";
 import { changeData, commitData } from "@ldo/solid";
 import "./account.scss";
 import dayjs from "dayjs";
+import { WalletContext } from "../../index";
 
 function Account() {
   const { session } = useSolidAuth();
+  const { walletDetails } = useContext(WalletContext);
   const resource = useResource(session.webId);
   const profile = useSubject(SolidProfileShapeShapeType, session.webId);
 
@@ -25,7 +27,8 @@ function Account() {
     webId: session.webId,
     birthday: "",
     bio: "",
-    connectWallet: "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
+    connectWallet: walletDetails.walletAddress || "Wallet Not Connected",
+    walletBalance: walletDetails.walletBalance || "Wallet Not Connected",
     userImg: avatarImg,
     userBackgroundImg: sunset,
   });
@@ -142,6 +145,10 @@ function Account() {
         <div className="info-item">
           <p>Wallet Address</p>
           <span>{user.connectWallet}</span>
+        </div>
+        <div className="info-item">
+          <p>Wallet Balance</p>
+          <span>{user.walletBalance} ETH</span>
         </div>
       </div>
 

@@ -50,16 +50,13 @@ export async function setWacRuleForAclUriWithOri(
   function addRuleToDataset(
     type: "public" | "authenticated" | "agent",
     accessModeList: AccessModeList,
-    agentId?: string
+    agentIds?: string[]
   ) {
     const accessModeListHash = hashAccessModeList(accessModeList);
 
     // No need to add if all access is false
     if (accessModeListHash === "") return;
     if (!ruleMap[accessModeListHash]) {
-      // const authorization = dataset
-      //   .usingType(AuthorizationShapeType)
-      //   .fromSubject(`${aclUri}#${v4()}`);
       const authorization = dataset
         .usingType(AuthorizationShapeType)
         .fromSubject(`${aclUri}#${type}`);
@@ -73,11 +70,9 @@ export async function setWacRuleForAclUriWithOri(
       if (isContainerUri(accessTo)) {
         authorization.default = { "@id": accessTo };
       }
-
       if (accessModeList.origin) {
         authorization.Origin = { "@id": accessModeList.origin };
       }
-      
       ruleMap[accessModeListHash] = authorization;
     }
 
@@ -87,8 +82,11 @@ export async function setWacRuleForAclUriWithOri(
       authorization.agentClass?.push({ "@id": "Agent" });
     } else if (type === "authenticated") {
       authorization.agentClass?.push({ "@id": "AuthenticatedAgent" });
-    } else if (type === "agent" && agentId) {
-      authorization.agent?.push({ "@id": agentId });
+    } else if (type === "agent" && agentIds) {
+      // authorization.agent?.push({ "@id": agentId });
+      agentIds.forEach(agentId => {
+        authorization.agent?.push({ "@id": agentId });
+      });
     }
   }
 
@@ -101,7 +99,7 @@ export async function setWacRuleForAclUriWithOri(
   }
   if (newRule.agent) {
     Object.entries(newRule.agent).forEach(([agentUri, accessModeList]) => {
-      addRuleToDataset("agent", accessModeList, agentUri);
+      addRuleToDataset("agent", accessModeList, [agentUri]);
     });
   }
 

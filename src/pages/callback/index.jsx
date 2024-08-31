@@ -1,22 +1,26 @@
 import { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  handleIncomingRedirect,
-  getDefaultSession,
-} from "@inrupt/solid-client-authn-browser";
+import { handleIncomingRedirect } from "@inrupt/solid-client-authn-browser";
 import { WalletContext } from "../../index";
 import { ethers } from "ethers";
 import { message } from "antd";
 import "../login/login.scss";
 
 function Callback() {
-  const [connected, setConnected] = useState(false); // connect to wallet
+  const [connected, setConnected] = useState(false); // connect to wallet status
   const navigate = useNavigate();
   const { walletDetails, setWalletDetails } = useContext(WalletContext);
   const [messageApi, contextHolder] = message.useMessage();
   const errorMsg = (msg) => {
     messageApi.open({
       type: "error",
+      content: msg,
+    });
+  };
+
+  const successMsg = (msg) => {
+    messageApi.open({
+      type: "success",
       content: msg,
     });
   };
@@ -40,6 +44,7 @@ function Callback() {
       setConnected(true);
     } catch (error) {
       errorMsg("Connect wallet failed! " + error.reason);
+      console.error("Connect wallet failed!", error);
     }
   };
 
@@ -50,16 +55,35 @@ function Callback() {
       if (!res.isLoggedIn) {
         window.location.href = "/login";
       }
+      console.log("complete Login Solid pod");
+      if (window.ethereum && window.ethereum.isMetaMask) {
+        // Check if the account has been connected
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+          console.log("accounts", accounts);
+          // If connected, there will be addresses in the `accounts` array
+          if (accounts.length > 0) {
+            setTimeout(() => {
+              connectWallet();
+            }, 2500);
+            successMsg("Wallet connected successfully!");
+          }
+        } catch (error) {
+          // If an error occurs, a message indicating failure to connect to the wallet is displayed and the cause of the error is displayed.
+          errorMsg("Connect wallet failed! " + error.reason);
+          console.error("Connect wallet failed!", error);
+        }
+      }
     }
     completeLogin();
-    console.log("complete Login Solid pod");
   }, []);
 
   useEffect(() => {
-    console.log("Connect wallet?");
     if (connected) {
       console.log("Process completed successfully");
-      console.log("Redirecting to login page...");
+      console.log("Redirecting to login page... v1");
       setWalletDetails({
         ...walletDetails,
         walletLogin: true,
