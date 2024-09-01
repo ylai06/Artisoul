@@ -184,9 +184,9 @@ export const SetACL = ({ mainContainer }) => {
     let newRule = {
       public: {
         read: true,
-        append: true,
-        write: true,
-        control: true,
+        append: false,
+        write: false,
+        control: false,
       },
       authenticated: {
         read: true,
