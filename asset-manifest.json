@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/Artisoul/static/css/main.09de9040.css",
-    "main.js": "/Artisoul/static/js/main.9e3cf3aa.js",
+    "main.js": "/Artisoul/static/js/main.c90ef383.js",
     "static/media/sunset.jpg": "/Artisoul/static/media/sunset.8a97dbbcc3e0a6ebff8a.jpg",
     "static/media/avaExample.jpg": "/Artisoul/static/media/avaExample.863435d74500aa26db86.jpg",
     "static/media/index.cjs": "/Artisoul/static/media/index.61e57bb6b4fd6fcd0938.cjs",
     "index.html": "/Artisoul/index.html",
     "main.09de9040.css.map": "/Artisoul/static/css/main.09de9040.css.map",
-    "main.9e3cf3aa.js.map": "/Artisoul/static/js/main.9e3cf3aa.js.map"
+    "main.c90ef383.js.map": "/Artisoul/static/js/main.c90ef383.js.map"
   },
   "entrypoints": [
     "static/css/main.09de9040.css",
-    "static/js/main.9e3cf3aa.js"
+    "static/js/main.c90ef383.js"
   ]
 }
