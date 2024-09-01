@@ -37,7 +37,10 @@ export const SetACL = ({ mainContainer }) => {
   const [agentAccess, setAgentAccess] = useState([]);
   const { walletDetails } = useContext(WalletContext);
 
-  const agentWebId = process.env.REACT_APP_USER_POD_LIST.split(",");
+  const REACT_APP_USER_POD_LIST =
+    "https://solidweb.me/NFTsystem/profile/card#me,https://solidweb.me/StellarEcho/profile/card#me,https://solidweb.me/CosmicVoyager/profile/card#me,https://solidweb.me/MysticWave/profile/card#me,https://solidweb.me/QuantumRider/profile/card#me,https://solidweb.me/LunarShadow/profile/card#me,https://solidweb.me/TwilightSeeker/profile/card#me,https://solidweb.me/NebulaHunter/profile/card#me,https://solidweb.me/NFT-asset/profile/card#me,https://solidweb.me/User1/profile/card#me";
+  // const agentWebId = process.env.REACT_APP_USER_POD_LIST.split(",");
+  const agentWebId = REACT_APP_USER_POD_LIST.split(",");
 
   // Check public access
   const onGetPublic = useCallback(async () => {
