@@ -645,9 +645,45 @@
         "IERC165"
       ]
     },
+    "/Users/laiyuzhu/Documents/MScCS/MScProject/NFT projects/nft-manage/node_modules/hardhat/console.sol": {
+      "lastModificationDate": 1721896124337,
+      "contentHash": "896f68942c3a20e9ae3c3c5bfd3add54",
+      "sourceName": "hardhat/console.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.22 <0.9.0"
+      ],
+      "artifacts": [
+        "console"
+      ]
+    },
     "/Users/laiyuzhu/Documents/MScCS/MScProject/NFT projects/nft-manage/contracts/NFTMarketplace.sol": {
-      "lastModificationDate": 1721812271584,
-      "contentHash": "d7890746a5f228394385891e5167e29a",
+      "lastModificationDate": 1725144622225,
+      "contentHash": "ccf89b388c73b6b070e1bd13f589f568",
       "sourceName": "contracts/NFTMarketplace.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -684,42 +720,6 @@
       ],
       "artifacts": [
         "NFTMarketplace"
-      ]
-    },
-    "/Users/laiyuzhu/Documents/MScCS/MScProject/NFT projects/nft-manage/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1721896124337,
-      "contentHash": "896f68942c3a20e9ae3c3c5bfd3add54",
-      "sourceName": "hardhat/console.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "console"
       ]
     }
   }

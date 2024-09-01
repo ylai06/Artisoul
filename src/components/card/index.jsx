@@ -49,26 +49,48 @@ export const NFTCard = ({ dataUri, token, data }) => {
     document.body.removeChild(tempInput);
   };
 
-  return (
-    <Link to={newTo} state={{ data }} className="card">
-      <Card cover={<img alt="example" src={blobUrl} />} className="exampleNFT">
-        <div className="title">
-          <h4>{nft.title}</h4>
-        </div>
-        <div className="creator">
-          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
-          <span className="mt-2 txt">{nft.owner}</span>
-          {/* <div
-            class="copy-btn"
-            onClick={(e) => {
-              e.stopPropagation(); // 阻止事件冒泡，防止触发 Link 的点击跳转
-              copyToClipboard(nft.owner);
-            }}
-          >
-            <CopyOutlined />
-          </div> */}
-        </div>
-      </Card>
-    </Link>
-  );
+  if (token) {
+    return (
+      <Link to={newTo} state={{ data }} className="card">
+        <Card
+          cover={<img alt="example" src={blobUrl} />}
+          className="exampleNFT"
+        >
+          <div className="title">
+            <h4>{nft.title}</h4>
+          </div>
+          <div className="creator">
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+            <span className="mt-2 txt">{nft.owner}</span>
+            {/* <div
+              class="copy-btn"
+              onClick={(e) => {
+                e.stopPropagation(); // 阻止事件冒泡，防止触发 Link 的点击跳转
+                copyToClipboard(nft.owner);
+              }}
+            >
+              <CopyOutlined />
+            </div> */}
+          </div>
+        </Card>
+      </Link>
+    );
+  } else {
+    return (
+      <div className="card">
+        <Card
+          cover={<img alt="example" src={blobUrl} />}
+          className="exampleNFT"
+        >
+          <div className="title">
+            <h4>{nft.title}</h4>
+          </div>
+          <div className="creator">
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+            <span className="mt-2 txt">{nft.owner}</span>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 };

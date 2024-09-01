@@ -37,11 +37,7 @@ export const SetACL = ({ mainContainer }) => {
   const [agentAccess, setAgentAccess] = useState([]);
   const { walletDetails } = useContext(WalletContext);
 
-  // console.log("userPod", userPod);
-  const agentWebId = [
-    "https://solidweb.me/NFTsystem/profile/card#me",
-    "https://solidweb.me/NFTsystem2/profile/card#me",
-  ]; // userPod[0]
+  const agentWebId = process.env.REACT_APP_USER_POD_LIST.split(",");
 
   // Check public access
   const onGetPublic = useCallback(async () => {
@@ -55,7 +51,6 @@ export const SetACL = ({ mainContainer }) => {
       (key) => publicAccess[key] === true
     );
     setPublicAccess(result);
-    console.log("publicAccess=>", result);
   }, [mainContainer]);
 
   // Set public access permissions for the current folder and sub-resources (first time login
@@ -164,10 +159,9 @@ export const SetACL = ({ mainContainer }) => {
     const myDatasetWithAcl = await getSolidDatasetWithAcl(myContainerUrl, {
       fetch: fetch,
     });
-    const access = getAgentAccess(myDatasetWithAcl, agentWebId);
+    const access = getAgentAccess(myDatasetWithAcl, agentWebId[0]);
     const result = Object.keys(access).filter((key) => access[key] === true);
     setAgentAccess(result);
-    console.log("agentAccess=>", result);
   }, []);
 
   // Set Agent access permissions
@@ -187,9 +181,9 @@ export const SetACL = ({ mainContainer }) => {
     let newRule = {
       public: {
         read: true,
-        append: false,
-        write: false,
-        control: false,
+        append: true,
+        write: true,
+        control: true,
       },
       authenticated: {
         read: true,
@@ -203,7 +197,7 @@ export const SetACL = ({ mainContainer }) => {
           append: true,
           write: true,
           control: true,
-          // origin: originURL,
+          origin: originURL,
         },
       },
     };
@@ -346,10 +340,6 @@ export const SetACL = ({ mainContainer }) => {
       }
       setDeleteState(false);
     }
-    // if (publicAccess || agentAccess) {
-    //   console.log("publicAccess=>", publicAccess);
-    //   console.log("agentAccess=>", agentAccess);
-    // }
   }, [deleteState, publicAccess, agentAccess]);
 
   useEffect(() => {

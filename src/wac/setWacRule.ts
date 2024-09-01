@@ -83,7 +83,6 @@ export async function setWacRuleForAclUriWithOri(
     } else if (type === "authenticated") {
       authorization.agentClass?.push({ "@id": "AuthenticatedAgent" });
     } else if (type === "agent" && agentIds) {
-      // authorization.agent?.push({ "@id": agentId });
       agentIds.forEach(agentId => {
         authorization.agent?.push({ "@id": agentId });
       });
@@ -98,8 +97,10 @@ export async function setWacRuleForAclUriWithOri(
     addRuleToDataset("authenticated", newRule.authenticated);
   }
   if (newRule.agent) {
+    console.log("Object.entries", Object.entries(newRule.agent))
     Object.entries(newRule.agent).forEach(([agentUri, accessModeList]) => {
-      addRuleToDataset("agent", accessModeList, [agentUri]);
+      let agentURLArr = agentUri.split(",")
+      addRuleToDataset("agent", accessModeList, agentURLArr);
     });
   }
 

@@ -72,13 +72,6 @@ function Login() {
     });
   };
 
-  const nextStep = () => {
-    setCurrent(current + 1);
-  };
-  const prev = () => {
-    setCurrent(current - 1);
-  };
-
   const connectWallet = async () => {
     if (typeof window.ethereum === "undefined") {
       errorMsg("Please install MetaMask first.");
@@ -345,35 +338,6 @@ function Login() {
             </div>
             {steps[current].btn || steps[current].btnCnt}
           </div>
-        </div>
-        <div
-          style={{
-            marginTop: 24,
-          }}
-        >
-          {current < steps.length - 1 && (
-            <Button type="primary" onClick={() => nextStep()}>
-              Next
-            </Button>
-          )}
-          {current === steps.length - 1 && (
-            <Button
-              type="primary"
-              onClick={() => successMsg("Processing complete!")}
-            >
-              Done
-            </Button>
-          )}
-          {current > 0 && (
-            <Button
-              style={{
-                margin: "0 8px",
-              }}
-              onClick={() => prev()}
-            >
-              Previous
-            </Button>
-          )}
         </div>
       </div>
       {/* <div className="test">

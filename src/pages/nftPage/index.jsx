@@ -32,6 +32,8 @@ function NFTPage() {
   const provider = new ethers.BrowserProvider(window.ethereum);
   let { state } = useLocation();
 
+  console.log("state sysPodUri", state.data.sysPodUri)
+
   const getNFTData = async (tokenId) => {
     const signer = await provider.getSigner();
     // Get the signer's address
@@ -56,12 +58,13 @@ function NFTPage() {
       owner: listedToken.owner,
       price: nftPriceInEther,
     };
+    console.log("NFT Data: ", item, addr);
     setData(item);
     setDataFetched(true);
     setCurrAddress(addr);
   };
 
-  const updateSysPod = async (newDataOwner) => {
+  const updateSysPod = async (newDataOwner, newURI) => {
     const myEngine = new QueryEngine();
     try {
       await myEngine.queryVoid(
@@ -75,7 +78,7 @@ function NFTPage() {
         INSERT {
           ?nft ex:ownedBy "${session.webId}";
                ex:ownedByAddress "${newDataOwner}";
-               ex:assetURI "${fileURL}".
+               ex:assetURI "${newURI}".
         }
         WHERE {
           ?nft ex:ownedBy ?oldOwner;
@@ -92,26 +95,13 @@ function NFTPage() {
     } catch (error) {
       console.error("Error in update process:", error);
     }
-    // const cSysData = changeData(sysNFT, sysResource);
-    // cSysData.ownedBy = session.webId;
-    // cSysData.ownedByAddress = newDataOwner;
-    // cSysData.assetURI = fileURL;
-    // if (cSysData.assetTitle) {
-    //   delete cSysData.assetTitle;
-    // }
-    // cSysData.assetTitle = "testData";
-    // try {
-    //   await commitData(cSysData);
-    // } catch (e) {
-    //   alert("Error update data:", e);
-    // }
   };
 
   const createNewPod = async (data) => {
     if (!session.webId) return;
     const webIdResource = getResource(session.webId);
     const rootContainerResult = await webIdResource.getRootContainer();
-    const mainContainer = rootContainerResult.child("my-solid-app/");
+    const mainContainer = rootContainerResult.child("my-nft-collection/");
 
     const file = new File([data.blob], data.fileName, {
       type: data.filetype,
@@ -205,12 +195,14 @@ function NFTPage() {
   };
 
   const buyNFT = async (data) => {
-    console.log("Buying NFT: ", data);
+    // console.log("Buying NFT: ", data);
     // 1. 交易，更新 NFT 的 metadata
     // 2. 成功後，刪除原本的 NFT metadata container
     // 同時更新 Marketplace pod 中的 NFT 資料
     // 3. 如失敗，刪除新的 NFT metadata container
     try {
+      console.log("data: ", data);
+
       const ethers = require("ethers");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -222,15 +214,18 @@ function NFTPage() {
       console.log("contract: ", contract);
       setMessage("Buying NFT..., please wait up to 5 minutes.");
       const ethPrice = ethers.parseUnits(data.price, "ether");
-      console.log("ethPrice", ethPrice);
       let nftTxn = await contract.executeSale(data.tokenId, {
         value: ethPrice,
       });
       await nftTxn.wait();
 
-      createNewPod(data);
-      deleteOriginalPod(data.dataUri);
-      updateSysPod(signer.address);
+      const newURI = await createNewPod(data);
+      await contract.updateTokenURI(data.tokenId, newURI + "index.ttl");
+
+      console.log("deleteOriginalPod: ", data.dataUri.replace("index.ttl", ""));
+      await deleteOriginalPod(data.dataUri.replace("index.ttl", ""));
+      console.log("updateSysPod: ", signer.address, newURI + "index.ttl");
+      await updateSysPod(signer.address, newURI + "index.ttl");
 
       console.log("contract details: ", nftTxn);
       setMessage(
@@ -299,8 +294,7 @@ function NFTPage() {
             <p className="hint">Create Date </p>
             {dayjs(nft.uploadDate).format("YYYY/MM/DD")}
           </div>
-          {currAddress !== contractInfo.owner &&
-          currAddress !== contractInfo.seller ? (
+          {currAddress !== contractInfo.seller ? (
             <div>
               <p className="hint">Owned by</p>
               {currAddress}

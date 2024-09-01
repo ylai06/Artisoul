@@ -14,7 +14,7 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
     //owner is the contract address that created the smart contract
     // address payable owner;
     //The fee charged by the marketplace to be allowed to list an NFT
-    uint256 listPrice = 0.00001 ether;
+    uint256 listPrice = 0.000001 ether;
 
     //The structure to store info about a listed token
     struct ListedToken {
@@ -197,18 +197,11 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         payable(seller).transfer(msg.value);
     }
 
-    function mintNFT(
-        address recipient,
-        string memory tokenURI
-    ) public onlyOwner returns (uint256) {
-        _tokenIds++;
-
-        uint256 newItemId = _tokenIds;
-        _mint(recipient, newItemId);
-        _setTokenURI(newItemId, tokenURI);
-
-        return newItemId;
+    function updateTokenURI(uint256 tokenId, string memory newTokenURI) public payable {
+        require(ownerOf(tokenId) == msg.sender, "Caller is not the owner");
+        _setTokenURI(tokenId, newTokenURI);
     }
+
 
     //We might add a resell token function in the future
     //In that case, tokens won't be listed by default but users can send a request to actually list a token

@@ -14,9 +14,9 @@ const Market = () => {
   const ethers = require("ethers");
   const provider = new ethers.BrowserProvider(window.ethereum);
   const searchResult = document.getElementById("searchResult");
-  const [pointerPods, setPointerPods] = useState({});
+  const [pointerPods, setPointerPods] = useState(new Map());
   const [respods, setRespods] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const resource = useResource(
     "https://solidweb.me/NFTsystem/my-solid-app/NFTList/"
   );
@@ -24,35 +24,48 @@ const Market = () => {
   async function getPodUri(respods) {
     let podList = new Map();
     if (respods != []) {
-      const myEngine = new QueryEngine();
-      const bindingsStream = await myEngine.queryBindings(
-        `
-        PREFIX ldo: <https://ldo.js.org/>
+      try {
+        const myEngine = new QueryEngine();
+        // PREFIX ldo: <https://ldo.js.org/>
+        // PREFIX ex: <https://example.com/>
+        // SELECT ?nft ?assetURI
+        // WHERE {
+        //   {?nft ldo:assetURI ?assetURI;}
+        //   UNION
+        //   {?nft ex:assetURI ?assetURI.}
+        // }
+        const bindingsStream = await myEngine.queryBindings(
+          `
         PREFIX ex: <https://example.com/>
         SELECT ?nft ?assetURI
         WHERE {
-          {?nft ldo:assetURI ?assetURI;}
-          UNION
           {?nft ex:assetURI ?assetURI.}
         }
         `,
-        {
-          sources: respods,
-          lenient: true,
-        }
-      );
-      return new Promise((resolve, reject) => {
-        bindingsStream.on("data", (binding) => {
-          podList.set(binding.get("assetURI").value, binding.get("nft").value);
+          {
+            sources: respods,
+            lenient: true,
+          }
+        );
+        return new Promise((resolve, reject) => {
+          bindingsStream.on("data", (binding) => {
+            podList.set(
+              binding.get("assetURI").value,
+              binding.get("nft").value
+            );
+          });
+          bindingsStream.on("end", () => {
+            resolve(podList);
+            console.log("query ", podList);
+          });
+          bindingsStream.on("error", (error) => {
+            console.error("Error in query result stream:", error);
+            reject(error);
+          });
         });
-        bindingsStream.on("end", () => {
-          resolve(podList);
-        });
-        bindingsStream.on("error", (error) => {
-          console.error("Error in query result stream:", error);
-          reject(error);
-        });
-      });
+      } catch (error) {
+        console.error("Error: ", error);
+      }
     }
   }
 
@@ -161,7 +174,6 @@ const Market = () => {
         // Wait for the resource to be loaded before processing the child item
         const children = resource.children();
         const podUris = children.map((child) => child.uri);
-
         setRespods(podUris);
         setLoading(false);
       }
@@ -170,12 +182,14 @@ const Market = () => {
     fetchResource(); //Call asynchronous function
   }, [resource]); // Re-executed when resource changes
 
+  useEffect(() => {}, [pointerPods]);
+
   useEffect(() => {
     // Wait for respods to be loaded and perform subsequent operations.
     const getPods = async () => {
       if (respods.length > 0) {
-        const searchPods = await getPodUri(respods);
-        setPointerPods(searchPods);
+        const mapPodList = await getPodUri(respods);
+        setPointerPods(mapPodList);
       }
     };
     if (!loading) {

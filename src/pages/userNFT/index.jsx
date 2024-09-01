@@ -23,8 +23,8 @@ export default function UserNFT() {
         if (rootContainerResult.isError) {
           return;
         }
-        // Get a child of the root resource called "my-solid-app/"
-        const mainContainer = rootContainerResult.child("my-solid-app/");
+        // Get a child of the root resource called "my-nft-collection/"
+        const mainContainer = rootContainerResult.child("my-nft-collection/");
         setMainContainerUri(mainContainer.uri);
         // Create the main container if it doesn't exist yet
         await mainContainer.createIfAbsent();
