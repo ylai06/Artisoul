@@ -78,6 +78,7 @@ const Market = () => {
     searchResult.innerText = "Searching...";
     if (searchValue) {
       const search = searchValue.toLowerCase();
+      console.log("searching for: ", search, keys);
       try {
         const myEngine = new QueryEngine();
         const bindingsStream = await myEngine.queryBindings(
@@ -91,7 +92,8 @@ const Market = () => {
                 schema:owner ?owner;
                 schema:uploadDate ?uploadDate.
             FILTER(CONTAINS(LCASE(?description), "${search}")|| CONTAINS(LCASE(?title), "${search}"))
-          }`,
+          }
+          `,
           {
             // Sources field is optional. Will be derived from query if not provided.
             sources: keys, // Sets your profile as query source

@@ -1,4 +1,31 @@
-# Getting Started with Create React App
+
+# Visiting the project
+
+This project is deployed by github-pages. [Link](https://ylai06.github.io/Artisoul/) 
+
+## Steps to set the Environment
+1. Install Metamask browser [download](https://metamask.io/download/)
+2. Create Metamask test account [Tutorial](https://medium.com/@crypto.nao.news/%E6%96%B0%E6%89%8B%E7%B3%BB%E5%88%97-metamask-%E4%BB%8B%E7%B4%B9-%E4%B8%8A-%E9%8C%A2%E5%8C%85%E5%89%B5%E5%BB%BA%E6%95%99%E5%AD%B8-2bef512120a6)
+3. Add test blockchain network [Tutorial](https://medium.com/@razor07/how-to-get-sepolia-eth-from-a-faucet-7420e5ceacb3)
+
+- Testnet
+  - Network Name — Sepolia Testnet
+  - New RPC URL — https://eth-sepolia.g.alchemy.com/v2/[TEST_NET_KEY]
+  - Chain ID — 11155111
+  - Currency Symbol — SepoliaETH
+  - Block explorer URL — https://sepolia.etherscan.io/
+
+4. Get test ETH coins [Google Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
+5. [Project website](https://ylai06.github.io/Artisoul)
+
+- Test account
+  - Email julialai0202@gmail.com
+  - Password 123456
+6. Download digital assets and choose a picture from [dotown](https://dotown.maeda-design-room.net/)
+7. User testing
+8. [Survey](https://forms.gle/N1mVCW2SWx75DHMs5)
+
+# Getting Started with Code
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 - nvm use 20.0.0
